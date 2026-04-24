@@ -1,0 +1,107 @@
+﻿@using Shoppable.Enum
+@model CreateProductVM
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-dark text-white rounded-top-4">
+            <h4 class="mb-0">Create New Product</h4>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form  asp-action="SaveCreate" method="post" enctype="multipart/form-data">
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <!-- Product Name -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-semibold"></label>
+                    <input asp-for="Name" class="form-control" value="Test" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label fw-semibold"></label>
+                    <input asp-for="Price" type="number" min="1" class="form-control" value="15" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <!-- Colors -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Colors</label>
+
+                    <input asp-for="Colors"
+                           class="form-control"
+                           placeholder="Red, Blue, Black" value="Red, Blue, Black">
+                    <span asp-validation-for="Colors" class="text-danger"></span>
+
+                    <small class="text-muted">
+                        Separate colors with commas
+                    </small>
+                </div>
+
+                <!-- Category -->
+                <div class="mb-3">
+                    <label asp-for="category" class="form-label fw-semibold"></label>
+
+                    <select asp-for="category" asp-items="Html.GetEnumSelectList<Category>()" class="form-select">
+                        <option value="">Select Category</option>
+
+                    </select>
+
+                    <span asp-validation-for="category" class="text-danger"></span>
+                </div>
+
+                <!-- sizes -->
+                <div class="mb-3">
+                    <label asp-for=Sizes class="form-label fw-semibold">Sizes</label>
+
+                    <input asp-for="Sizes" class="form-control" placeholder="S, M, L OR 41, 42 " value="S, M, L">
+                    <span asp-validation-for="Sizes" class="text-danger"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="describtion" ></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <!-- Stock Quantity -->
+                <div class="mb-3">
+                    <label asp-for="StockQuantity" class="form-label fw-semibold"></label>
+                    <input asp-for="StockQuantity" type="number" min="1" class="form-control" value="25"  />
+                    <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                </div>
+
+                <!-- Images URLs -->
+                <div class="mb-3">
+                    <label  class="form-label fw-semibold">Upload Product Images</label>
+                    <input asp-for="image" accept=".png,.jpg,.jpeg" type="file" class="form-control" />
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+
+                    <a asp-controller="Dashboard"
+                       asp-action="Products"
+                       class="btn btn-outline-secondary">
+                        Back
+                    </a>
+
+                    <button type="submit" class="btn btn-primary px-4">
+                        Save Product
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

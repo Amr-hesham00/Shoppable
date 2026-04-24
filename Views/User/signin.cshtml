@@ -1,0 +1,77 @@
+﻿
+@model SignInVM
+
+
+    <div class="container vh-100 d-flex align-items-center justify-content-center">
+
+
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-5">
+
+                <!-- Logo -->
+                <h2 class="text-center fw-bold mb-3">
+                    <span class="text-dark">Shop</span>
+                    <span style="color:#084298;">pable</span>
+                </h2>
+
+                <p class="text-center text-muted mb-4">
+                    Welcome back! Please login to your account.
+                </p>
+
+                <!-- Admin Demo Info -->
+                <div class="alert alert-light border small">
+                    <strong>Admin Demo:</strong><br />
+                    admin@shoppable.com <br />
+                    Admin@123
+                </div>
+
+                <form asp-action="SaveSignIn" method="post">
+
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label asp-for="UserName" class="form-label fw-semibold"></label>
+                        <input asp-for="UserName" class="form-control form-control-lg" placeholder="Enter your email" />
+                        <span asp-validation-for="UserName" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label fw-semibold"></label>
+                        <input asp-for="Password" type="password" class="form-control form-control-lg" placeholder="Enter your password" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="form-check mb-4">
+                   
+                        <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
+                        <label asp-for="RememberMe" class="form-check-label"></label>
+                    </div>
+
+                    <!-- Button -->
+                    <button type="submit" class="btn btn-dark w-100 btn-lg rounded-3">
+                        Sign In
+                    </button>
+
+                </form>
+
+                <!-- Register Link -->
+                <div class="text-center mt-4">
+                    <span class="text-muted">Don't have an account?</span>
+                    <a class="text-decoration-none fw-semibold" asp-action="Signup">
+                        Register
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        
+    }

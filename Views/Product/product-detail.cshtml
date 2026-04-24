@@ -1,0 +1,822 @@
+﻿@model Product
+
+
+<!-- breadcrumb -->
+<div class="container">
+    <div class="bread-crumb flex-w p-l-25 p-r-15 p-t-30 p-lr-0-lg">
+        <a asp-action="index" asp-controller="home" class="stext-109 cl8 hov-cl1 trans-04">
+            Home
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <a asp-action="ShopProducts" asp-controller="product" class="stext-109 cl8 hov-cl1 trans-04">
+            Shop
+            <i class="fa fa-angle-right m-l-9 m-r-10" aria-hidden="true"></i>
+        </a>
+
+        <span class="stext-109 cl4">
+            @Model.Name
+        </span>
+        <a 
+           class="btn btn-outline-secondary"
+           style="margin-left: auto;"
+           onclick="history.back(); return false;">
+            Back
+        </a>
+    </div>
+</div>
+
+<section class="sec-product-detail bg0 p-t-65 p-b-60">
+
+    <div class="container">
+        <div class="pd-section">
+            <div class="pd-grid">
+
+                <!-- Image Column -->
+                <div>
+                    <div class="pd-image-wrap">
+                        @if (Model.ImageUrl?.Any() == true)
+                        {
+                            <img src="@Model.ImageUrl" alt="@Model.Name">
+                            <a class="pd-img-expand" href="@Model.ImageUrl" target="_blank" title="Expand">
+                                <svg width="14" height="14" viewBox="0 0 20 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <polyline points="15 3 21 3 21 9" />
+                                    <polyline points="9 21 3 21 3 15" />
+                                    <line x1="21" y1="3" x2="14" y2="10" />
+                                    <line x1="3" y1="21" x2="10" y2="14" />
+                                </svg>
+                            </a>
+                        }
+                    </div>
+
+                </div>
+
+                <!-- Info Column -->
+                <div class="pd-info">
+                    <p class="pd-category ">In Stock</p>
+
+                    <h4 class="pd-name js-name-detail">@Model.Name</h4>
+
+                    <p class="pd-price">$@Model.Price</p>
+
+                    <div class="pd-divider"></div>
+                    <p class="pd-desc">@Model.Description</p>
+
+                    <form asp-action="add" asp-controller="cart" method="post">
+
+                        <input type="hidden" name="ProductId" value="@Model.Id" />
+
+                        <!-- Size -->
+                        <div class="pd-field">
+                            <label asp-for="Sizes" class="pd-field-label">Size</label>
+                            <div class="pd-custom-select" id="size-select">
+                                <div class="selected" onclick="toggleSelect('size-select')">
+                                    <span class="selected-text">Select a size</span>
+                                    <span class="arrow"></span>
+                                </div>
+                                <div class="options">
+                                    @foreach (var size in Model.Sizes)
+                                    {
+                                        <div class="option" onclick="pickOption('size-select', '@size')">@size</div>
+                                    }
+                                </div>
+                                <select name="Size" asp-items="@(new SelectList(Model.Sizes))">
+                                    <option value="">Select a size</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Sizes" class="pd-error"></span>
+                        </div>
+
+                        <!-- Color -->
+                        <div class="pd-field">
+                            <label asp-for="Colors" class="pd-field-label">Color</label>
+                            <div class="pd-custom-select" id="color-select">
+                                <div class="selected" onclick="toggleSelect('color-select')">
+                                    <span class="selected-text">Select a color</span>
+                                    <span class="arrow"></span>
+                                </div>
+                                <div class="options">
+                                    @foreach (var color in Model.Colors)
+                                    {
+                                        <div class="option" onclick="pickOption('color-select', '@color')">@color</div>
+                                    }
+                                </div>
+                                <select name="Color" asp-items="@(new SelectList(Model.Colors))">
+                                    <option value="">Select a color</option>
+                                </select>
+                            </div>
+                            <span asp-validation-for="Colors" class="pd-error"></span>
+                        </div>
+
+                        <!-- Quantity + Add to Cart -->
+                        <div class="pd-qty-row">
+                            <div class="pd-qty">
+                                <button type="button" onclick="adjustQty(-1)">−</button>
+                                <input type="number" id="qty-input" name="Quantity" value="1" min="1" max="100" readonly>
+                                <button type="button" onclick="adjustQty(1)">+</button>
+                            </div>
+                            <button  type="submit" class="pd-btn-cart js-addcart-detail">Add to Cart</button>
+                        </div>
+
+                    </form>
+
+                    <div class="pd-divider"></div>
+
+                    <!-- Social Share -->
+                    <div class="pd-social">
+                        <span class="pd-social-label">visit us on </span>
+                        <a href="https://www.instagram.com/" title="Instagram" target="_blank">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="2" y="2" width="20" height="20" rx="5" />
+                                <circle cx="12" cy="12" r="4" />
+                                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                            </svg>
+                        </a>
+                        <a href="https://www.facebook.com/" title="Facebook" target="_blank">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                            </svg>
+                        </a>
+                        <a href="https://www.linkedin.com/feed/" title="LinkedIn" target="_blank">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" />
+                                <rect x="2" y="9" width="4" height="12" />
+                                <circle cx="4" cy="4" r="2" />
+                            </svg>
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</section>
+
+
+
+
+
+
+
+<!-- Footer -->
+<footer class="bg3 p-t-75 p-b-32">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-lg-3 p-b-50">
+                <h4 class="stext-301 cl0 p-b-30">
+                    Categories
+                </h4>
+
+                <ul>
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Women
+                        </a>
+                    </li>
+
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Men
+                        </a>
+                    </li>
+
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Shoes
+                        </a>
+                    </li>
+
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Watches
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-sm-6 col-lg-3 p-b-50">
+                <h4 class="stext-301 cl0 p-b-30">
+                    Help
+                </h4>
+
+                <ul>
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Track Order
+                        </a>
+                    </li>
+
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Returns
+                        </a>
+                    </li>
+
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            Shipping
+                        </a>
+                    </li>
+
+                    <li class="p-b-10">
+                        <a href="#" class="stext-107 cl7 hov-cl1 trans-04">
+                            FAQs
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-sm-6 col-lg-3 p-b-50">
+                <h4 class="stext-301 cl0 p-b-30">
+                    GET IN TOUCH
+                </h4>
+
+                <p class="stext-107 cl7 size-201">
+                    Any questions? Let us know in store at 8th floor, 379 Hudson St, New York, NY 10018 or call us on (+1) 96 716 6879
+                </p>
+
+                <div class="p-t-27">
+                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                        <i class="fa fa-facebook"></i>
+                    </a>
+
+                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                        <i class="fa fa-instagram"></i>
+                    </a>
+
+                    <a href="#" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                        <i class="fa fa-pinterest-p"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-lg-3 p-b-50">
+                <h4 class="stext-301 cl0 p-b-30">
+                    Newsletter
+                </h4>
+
+                <form>
+                    <div class="wrap-input1 w-full p-b-4">
+                        <input class="input1 bg-none plh1 stext-107 cl7" type="text" name="email" placeholder="email@example.com">
+                        <div class="focus-input1 trans-04"></div>
+                    </div>
+
+                    <div class="p-t-18">
+                        <button class="flex-c-m stext-101 cl0 size-103 bg1 bor1 hov-btn2 p-lr-15 trans-04">
+                            Subscribe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="p-t-40">
+            <div class="flex-c-m flex-w p-b-18">
+                <img src="/images/icons/icon-pay-01.png" height="34" width="50" alt="ICON-PAY">
+                &emsp;
+                <img src="/images/icons/icon-pay-02.png" height="34" width="50" alt="ICON-PAY">
+            </div>
+
+            <p class="stext-107 cl6 txt-center">
+                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved
+                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+            </p>
+        </div>
+    </div>
+</footer>
+
+
+<!-- Back to top -->
+<div class="btn-back-to-top" id="myBtn">
+    <span class="symbol-btn-back-to-top">
+        <i class="zmdi zmdi-chevron-up"></i>
+    </span>
+</div>
+
+
+
+<!--===============================================================================================-->
+<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/bootstrap/js/popper.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/select2/select2.min.js"></script>
+<script>
+    $(".js-select2").each(function(){
+        $(this).select2({
+            minimumResultsForSearch: 20,
+            dropdownParent: $(this).next('.dropDownSelect2')
+        });
+    })
+</script>
+<!--===============================================================================================-->
+<script src="vendor/daterangepicker/moment.min.js"></script>
+<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/slick/slick.min.js"></script>
+<script src="js/slick-custom.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/parallax100/parallax100.js"></script>
+<script>
+    $('.parallax100').parallax100();
+</script>
+<!--===============================================================================================-->
+<script src="vendor/MagnificPopup/jquery.magnific-popup.min.js"></script>
+<script>
+    $('.gallery-lb').each(function() { // the containers for all your galleries
+        $(this).magnificPopup({
+            delegate: 'a', // the selector for gallery item
+            type: 'image',
+            gallery: {
+                enabled:true
+            },
+            mainClass: 'mfp-fade'
+        });
+    });
+</script>
+<!--===============================================================================================-->
+<script src="vendor/isotope/isotope.pkgd.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/sweetalert/sweetalert.min.js"></script>
+<script>
+    $('.js-addwish-b2, .js-addwish-detail').on('click', function(e){
+        e.preventDefault();
+    });
+
+    $('.js-addwish-b2').each(function(){
+        var nameProduct = $(this).parent().parent().find('.js-name-b2').html();
+        $(this).on('click', function(){
+            swal(nameProduct, "is added to wishlist !", "success");
+
+            $(this).addClass('js-addedwish-b2');
+            $(this).off('click');
+        });
+    });
+
+    $('.js-addwish-detail').each(function(){
+        var nameProduct = $(this).parent().parent().parent().find('.js-name-detail').html();
+
+        $(this).on('click', function(){
+            swal(nameProduct, "is added to wishlist !", "success");
+
+            $(this).addClass('js-addedwish-detail');
+            $(this).off('click');
+        });
+    });
+
+    /*---------------------------------------------*/
+
+    $('.js-addcart-detail').each(function(){
+        var nameProduct = $(this).parent().parent().parent().parent().find('.js-name-detail').html();
+        $(this).on('click', function(){
+            swal(nameProduct, "is added to cart !", "success");
+        });
+    });
+
+</script>
+<!--===============================================================================================-->
+<script src="vendor/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script>
+    $('.js-pscroll').each(function(){
+        $(this).css('position','relative');
+        $(this).css('overflow','hidden');
+        var ps = new PerfectScrollbar(this, {
+            wheelSpeed: 1,
+            scrollingThreshold: 1000,
+            wheelPropagation: false,
+        });
+
+        $(window).on('resize', function(){
+            ps.update();
+        })
+    });
+</script>
+
+<!--prod-details-->
+<script>
+
+    function adjustQty(delta) {
+                const input = document.getElementById('qty-input');
+                const val = parseInt(input.value) || 1;
+                input.value = Math.max(1, Math.min(99, val + delta));
+            }
+
+                function toggleSelect(id) {
+        const wrap = document.getElementById(id);
+        const isOpen = wrap.querySelector('.options').classList.contains('open');
+        document.querySelectorAll('.pd-custom-select .options.open').forEach(el => {
+            el.classList.remove('open');
+            el.previousElementSibling.classList.remove('open');
+        });
+        if (!isOpen) {
+            wrap.querySelector('.options').classList.add('open');
+            wrap.querySelector('.selected').classList.add('open');
+        }
+    }
+
+    function pickOption(id, value) {
+        const wrap = document.getElementById(id);
+        wrap.querySelector('.selected-text').textContent = value;
+        wrap.querySelector('select').value = value;
+        wrap.querySelectorAll('.option').forEach(o => o.classList.remove('selected-opt'));
+        wrap.querySelectorAll('.option').forEach(o => {
+            if (o.textContent === value) o.classList.add('selected-opt');
+        });
+        wrap.querySelector('.options').classList.remove('open');
+        wrap.querySelector('.selected').classList.remove('open');
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.pd-custom-select')) {
+            document.querySelectorAll('.pd-custom-select .options.open').forEach(el => {
+                el.classList.remove('open');
+                el.previousElementSibling.classList.remove('open');
+            });
+        }
+    });
+</script>
+<style>
+    .pd-custom-select {
+        position: relative;
+        user-select: none;
+    }
+
+        .pd-custom-select .selected {
+            padding: .75rem 1rem;
+            border: 0.5px solid #ccc;
+            border-radius: 2px;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: #1a1a1a;
+            background: #fff;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border .2s;
+        }
+
+            .pd-custom-select .selected:hover {
+                border-color: #1a1a1a;
+            }
+
+            .pd-custom-select .selected.open {
+                border-color: #1a1a1a;
+            }
+
+        .pd-custom-select .arrow {
+            width: 7px;
+            height: 7px;
+            border-right: 1px solid #888;
+            border-bottom: 1px solid #888;
+            transform: rotate(45deg);
+            transition: transform .2s;
+            margin-bottom: 3px;
+        }
+
+        .pd-custom-select .selected.open .arrow {
+            transform: rotate(-135deg);
+            margin-bottom: -3px;
+        }
+
+        .pd-custom-select .options {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 0.5px solid #ccc;
+            border-radius: 2px;
+            z-index: 100;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .25s ease, opacity .2s ease;
+            opacity: 0;
+        }
+
+            .pd-custom-select .options.open {
+                max-height: 220px;
+                opacity: 1;
+            }
+
+        .pd-custom-select .option {
+            padding: .65rem 1rem;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            color: #555;
+            transition: background .15s, color .15s;
+            border-bottom: 0.5px solid #f0f0f0;
+        }
+
+            .pd-custom-select .option:last-child {
+                border-bottom: none;
+            }
+
+            .pd-custom-select .option:hover {
+                background: #f7f6f4;
+                color: #1a1a1a;
+            }
+
+            .pd-custom-select .option.selected-opt {
+                color: #1a1a1a;
+                font-weight: 500;
+            }
+        /* hidden real select for form submission */
+        .pd-custom-select select {
+            display: none;
+        }
+    <!-- -->
+    @@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+    .pd-section {
+        font-family: 'DM Sans', sans-serif;
+        padding: 4rem 1rem;
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    .pd-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: start;
+    }
+
+    .pd-image-wrap {
+        position: relative;
+        background: #f7f6f4;
+        border-radius: 2px;
+        overflow: hidden;
+        aspect-ratio: 4/5;
+    }
+
+        .pd-image-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .pd-img-expand {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        background: #fff;
+        border: 0.5px solid #ddd;
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: .2s;
+        text-decoration: none;
+        color: #444;
+    }
+
+        .pd-img-expand:hover {
+            background: #f0efed;
+        }
+
+    .pd-dots {
+        display: flex;
+        gap: 6px;
+        margin-top: 1rem;
+    }
+
+    .pd-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ccc;
+    }
+
+        .pd-dot.active {
+            background: #222;
+            width: 20px;
+            border-radius: 3px;
+        }
+
+    .pd-info {
+        padding-top: .5rem;
+    }
+
+    .pd-category {
+        font-size: 11px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        color: #999;
+        margin-bottom: 1rem;
+    }
+
+    .pd-name {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.4rem;
+        font-weight: 400;
+        line-height: 1.2;
+        color: #1a1a1a;
+        margin-bottom: 1rem;
+    }
+
+    .pd-price {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.6rem;
+        font-weight: 300;
+        color: #1a1a1a;
+        letter-spacing: .02em;
+        margin-bottom: 1.5rem;
+    }
+
+    .pd-divider {
+        height: 0.5px;
+        background: #e8e8e8;
+        margin: 1.5rem 0;
+    }
+
+    .pd-desc {
+        font-size: 14px;
+        line-height: 1.8;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .pd-field {
+        margin-bottom: 1.5rem;
+    }
+
+    .pd-field-label {
+        font-size: 11px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #999;
+        margin-bottom: .6rem;
+        display: block;
+    }
+
+    .pd-select-wrap {
+        position: relative;
+    }
+
+        .pd-select-wrap select {
+            width: 100%;
+            padding: .7rem 2.5rem .7rem 1rem;
+            font-size: 13px;
+            font-family: 'DM Sans', sans-serif;
+            color: #1a1a1a;
+            background: #fff;
+            border: 0.5px solid #ccc;
+            border-radius: 2px;
+            appearance: none;
+            cursor: pointer;
+            transition: border .2s;
+        }
+
+            .pd-select-wrap select:focus {
+                outline: none;
+                border-color: #1a1a1a;
+            }
+
+        .pd-select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            width: 7px;
+            height: 7px;
+            border-right: 1px solid #888;
+            border-bottom: 1px solid #888;
+            transform: translateY(-65%) rotate(45deg);
+            pointer-events: none;
+        }
+
+    .pd-qty-row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .pd-qty {
+        display: flex;
+        align-items: center;
+        border: 0.5px solid #ccc;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+        .pd-qty button {
+            width: 38px;
+            height: 46px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+            transition: .15s;
+        }
+
+            .pd-qty button:hover {
+                background: #f5f5f5;
+                color: #1a1a1a;
+            }
+
+        .pd-qty input {
+            width: 52px;
+            height: 46px;
+            border: none;
+            border-left: 0.5px solid #e5e5e5;
+            border-right: 0.5px solid #e5e5e5;
+            text-align: center;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            background: #fff;
+            color: #1a1a1a;
+        }
+
+            .pd-qty input:focus {
+                outline: none;
+            }
+
+    .pd-btn-cart {
+        flex: 1;
+        height: 46px;
+        background: #1a1a1a;
+        color: #fff;
+        border: none;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: .2s;
+    }
+
+        .pd-btn-cart:hover {
+            background: #333;
+        }
+
+    .pd-social {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .pd-social-label {
+        font-size: 11px;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #999;
+    }
+
+    .pd-social a {
+        width: 32px;
+        height: 32px;
+        border: 0.5px solid #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #888;
+        transition: .2s;
+        text-decoration: none;
+    }
+
+        .pd-social a:hover {
+            border-color: #888;
+            color: #1a1a1a;
+        }
+
+
+    .pd-error {
+        font-size: 11px;
+        color: #e24b4a;
+        margin-top: .4rem;
+    }
+
+    @@media (max-width: 680px) {
+        .pd-grid
+    }
+
+    {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .pd-name {
+        font-size: 1.8rem;
+    }
+
+    }</style>
+
+<!--===============================================================================================-->
+<script src="js/main.js"></script>

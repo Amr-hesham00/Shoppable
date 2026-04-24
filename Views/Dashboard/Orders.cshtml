@@ -1,0 +1,405 @@
+﻿@model OrdersFilterVM
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Orders";
+}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.84.0">
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/dashboard/">
+
+    <!-- Bootstrap core CSS -->
+    <link href="/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/dashboard.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- header -->
+    <header class="navbar navbar-dark sticky-top bg-dark shadow px-3">
+
+        <!-- Left section -->
+        <div class="d-flex align-items-center">
+
+            <button class="navbar-toggler d-md-none me-2"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <a class="navbar-brand m-0 logo-gradient"
+               asp-controller="Home"
+               asp-action="Index">
+                Shoppable
+            </a>
+
+        </div>
+
+        <!-- Middle Section -->
+        <div class="position-absolute start-50 translate-middle-x d-none d-md-block">
+            <span class="dashboard-title">
+                @ViewData["Title"] Management
+            </span>
+        </div>
+
+        <!-- Right Section -->
+        <div class="d-flex align-items-center ms-auto">
+
+            <span class="text-white me-3 d-none d-lg-block">
+                Welcome <strong>@User.Identity?.Name</strong>
+            </span>
+
+            <a class="btn btn-sm btn-outline-light"
+               asp-action="SignOut"
+               asp-controller="User">
+                Sign out
+            </a>
+
+        </div>
+
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+
+            <!-- side bar menu-->
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <br />
+                        <!-- Dashboard -->
+                        <li class="nav-item">
+                            <a class="nav-link " aria-current="page" asp-action="index">
+                                <span data-feather="home"></span>
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <!-- account -->
+                        <li class="nav-item">
+                            <a class="nav-link " aria-current="page" asp-action="account" asp-controller="dashboard">
+                                <span data-feather="file"></span>
+                                Account
+                            </a>
+                        </li>
+
+                        <!-- Orders -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="orders" asp-controller="dashboard">
+                                <span data-feather="file"></span>
+                                Orders
+                            </a>
+                        </li>
+
+                        <!-- Products -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="Products" asp-controller="dashboard">
+                                <span data-feather="shopping-cart"></span>
+                                Products
+                            </a>
+                        </li>
+
+                        <!-- Customers -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="Customers" asp-controller="dashboard">
+                                <span data-feather="users"></span>
+                                Customers
+                            </a>
+                        </li>
+
+                        <!-- Analysis -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="Analysis" asp-controller="dashboard">
+                                <span data-feather="users"></span>
+                                Analysis
+                            </a>
+                        </li>
+
+                        <!-- Reports -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-action="Reports" asp-controller="dashboard">
+                                <span data-feather="bar-chart-2"></span>
+                                Reports
+                            </a>
+                        </li>
+
+                    </ul>
+
+
+                </div>
+            </nav>
+
+            <!-- main section-->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 ">
+                    <!-- Back Button (hidden on small screens) -->
+                    <button onclick="history.back()"
+                            class="btn btn-sm btn-outline-dark ms-3 d-none d-md-inline">
+                        ← Back
+                    </button>
+                    <h1 class="h2">Dashboard</h1>
+
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+                        </div>
+
+
+                    </div>
+                </div>
+                <!-------------------------- Filteration ----------------------------->
+                @* <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <form asp-action="Products" method="get">
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold small">Search</label>
+                                    <input type="text" name="Name" value="@ViewData["CurrentFilter"]" class="form-control form-control-sm" placeholder="Name...">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label fw-semibold small">Status</label>
+                                    <select name="status" class="form-select form-select-sm">
+                                        <option value="">All</option>
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label fw-semibold small">Less than $</label>
+                                    <input placeholder="Max" type="number" min="1" name="MinPrice" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label fw-semibold small">Greater than $</label>
+                                    <input placeholder="Min" type="number" min="1" name="MaxPrice" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label fw-semibold small">Qt. less than</label>
+                                    <input placeholder="Max" type="number" min="1" name="MaxStockQuantity" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label fw-semibold small">Qt. greater than</label>
+                                    <input placeholder="Min" type="number" min="1" name="MinStockQuantity" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold small">Created Before</label>
+                                    <input type="date" name="createdBefore" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-semibold small">Created After</label>
+                                    <input type="date" name="createdAfter" class="form-control form-control-sm">
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-start gap-2">
+                                <a asp-action="Products" class="btn btn-sm btn-outline-secondary px-4">Clear All Filters</a>
+                                <button type="submit" class="btn btn-sm btn-primary px-5">Apply Filters</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div> *@
+                <!------------------------------------------------------->
+
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-3">Orders</h2>
+
+                </div>
+                @if (Model.Orders?.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle shadow-sm">
+
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Customer</th>
+                                    <th>Items</th>
+                                    <th>Date</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var order in Model.Orders)
+                                {
+                                    <tr>
+                                        <!--orderId-->
+                                        <td class="fw-semibold">#@order.Id</td>
+
+                                        <!--Customerid-->
+                                        <td>
+                                            @order.CustomerId
+                                        </td>
+
+                                        <!--Items Count-->
+                                        <td>
+                                            <span class="badge bg-secondary">
+                                                @order.orderItems.Count Items
+                                            </span>
+                                        </td>
+
+                                        <!--Order Date-->
+                                        <td>
+                                            @order.OrderDate.ToString("dd MMM yyyy")
+                                        </td>
+
+                                        <!--Total Amount-->
+                                        <td class="fw-semibold text-success">
+                                            $@order.TotalAmount
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td>
+
+                                            @switch (order.Status.ToString())
+                                            {
+                                                case "PendingPayment":
+                                                    <span class="badge bg-warning text-dark">Pending Payment</span>
+                                                    break;
+
+                                                case "AwaitingVerification":
+                                                    <span class="badge bg-info text-dark">Awaiting Verification</span>
+                                                    break;
+
+                                                case "Verified":
+                                                    <span class="badge bg-primary">Verified</span>
+                                                    break;
+
+                                                case "Rejected":
+                                                    <span class="badge bg-danger">Rejected</span>
+                                                    break;
+
+                                                case "Shipped":
+                                                    <span class="badge bg-info">Shipped</span>
+                                                    break;
+
+                                                case "Delivered":
+                                                    <span class="badge bg-success">Delivered</span>
+                                                    break;
+
+                                                case "Cancelled":
+                                                    <span class="badge bg-secondary">Cancelled</span>
+                                                    break;
+
+                                                case "Refunded":
+                                                    <span class="badge bg-dark">Refunded</span>
+                                                    break;
+
+                                                default:
+                                                    <span class="badge bg-light text-dark">Unknown</span>
+                                                    break;
+                                            }
+
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+
+                                                <!-- View -->
+                                                <a asp-controller="Order"
+                                                   asp-action="Details"
+                                                   asp-route-id="@order.Id"
+                                                   class="btn btn-outline-info">
+                                                    View
+                                                </a>
+
+                                                <!-- Edit -->
+                                                <a asp-controller="Order"
+                                                   asp-action="Edit"
+                                                   asp-route-id="@order.Id"
+                                                   class="btn btn-outline-warning">
+                                                    Edit
+                                                </a>
+
+                                                <!-- Toggle Active -->
+                                                <a asp-controller="Order"
+                                                   asp-action="Delete"
+                                                   asp-route-id="@order.Id"
+                                                   class="btn btn-outline-danger"
+                                                   onclick="return confirm('Are you sure you want to Delete this order?');">
+                                                    Delete
+                                                </a>
+
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center mt-5">
+
+                        <h4 class="text-muted">No orders yet 📦</h4>
+
+                        <p class="text-muted">
+                            Orders will appear here when customers purchase your products.
+                        </p>
+
+                    </div>
+                }
+
+            </main>
+        </div>
+    </div>
+
+
+    <script src="/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js" integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js" integrity="sha384-zNy6FEbO50N+Cg5wap8IKA4M/ZnLJgzc6w2NqACZaK0u0FXfOWRRJOnQtpZun8ha" crossorigin="anonymous"></script>
+    <script src="/js/dashboard.js"></script>
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+        }
+
+        @@media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        .logo-gradient {
+            font-weight: 700;
+            font-size: 28px;
+            background: linear-gradient(45deg, #0d6efd, #6610f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-title {
+            font-size: 1.35rem;
+            font-weight: 680;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+    </style>
+
+</body>
+</html>

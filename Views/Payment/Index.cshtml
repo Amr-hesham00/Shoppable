@@ -1,0 +1,668 @@
+﻿@model PaymentVM
+
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout — Shoppable</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #f0efed;
+            color: #1a1a1a;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2.5rem;
+            height: 70px;
+            border-bottom: 1px solid #e8e8e6;
+        }
+
+        .nav-brand {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #2d3bff;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+            .nav-links a {
+                text-decoration: none;
+                color: #1a1a1a;
+                font-size: 0.95rem;
+            }
+
+                .nav-links a:hover {
+                    color: #2d3bff;
+                }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-signout {
+            padding: 0.45rem 1.1rem;
+            border: 1.5px solid #d0d0d0;
+            border-radius: 999px;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+
+            .btn-signout:hover {
+                border-color: #1a1a1a;
+            }
+
+        .page {
+            max-width: 1200px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 2rem 2.2rem;
+            border: 1px solid #e8e8e6;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.3px;
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: #888;
+            margin-bottom: 1.8rem;
+        }
+
+        .section-divider {
+            border: none;
+            border-top: 1px solid #efefed;
+            margin: 1.8rem 0;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 1.2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+            .form-grid.three-col {
+                grid-template-columns: 2fr 1fr 1fr;
+            }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+            .form-group.full {
+                grid-column: 1 / -1;
+            }
+
+        label {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1.5px solid #e2e2df;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 0.93rem;
+            color: #1a1a1a;
+            background: #fff;
+            outline: none;
+            transition: border-color .18s, box-shadow .18s;
+        }
+
+            input[type="text"]:focus,
+            input[type="tel"]:focus,
+            select:focus {
+                border-color: #2d3bff;
+                box-shadow: 0 0 0 3px rgba(45, 59, 255, 0.08);
+            }
+
+        input.input-error {
+            border-color: #e24b4a;
+        }
+
+        span.field-error {
+            font-size: 0.76rem;
+            color: #e24b4a;
+        }
+
+        .input-icon-wrap {
+            position: relative;
+        }
+
+            .input-icon-wrap input {
+                padding-right: 2.8rem;
+            }
+
+        .card-icon {
+            position: absolute;
+            right: 0.85rem;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .payment-tabs {
+            display: flex;
+            gap: 0.6rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .pay-tab {
+            flex: 1;
+            padding: 0.6rem 0;
+            border: 1.5px solid #e2e2df;
+            border-radius: 10px;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: border-color .18s, background .18s;
+            color: #888;
+        }
+
+            .pay-tab.active {
+                border-color: #2d3bff;
+                background: #f0f1ff;
+                color: #2d3bff;
+                font-weight: 500;
+            }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.93rem;
+            padding: 0.55rem 0;
+        }
+
+            .summary-row .label {
+                color: #777;
+            }
+
+            .summary-row .value {
+                font-weight: 500;
+            }
+
+            .summary-row.total {
+                font-size: 1.05rem;
+                font-weight: 600;
+                border-top: 1px solid #efefed;
+                padding-top: 1rem;
+                margin-top: 0.4rem;
+            }
+
+        .summary-items {
+            margin-bottom: 1rem;
+        }
+
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid #f2f2f0;
+        }
+
+            .order-item:last-child {
+                border-bottom: none;
+            }
+
+        .item-img {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f0efed;
+            flex-shrink: 0;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .item-meta {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .item-price {
+            font-size: 0.9rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .btn-checkout {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 999px;
+            background: #1a1a1a;
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1.4rem;
+            transition: background .2s, transform .1s;
+            letter-spacing: 0.01em;
+        }
+
+            .btn-checkout:hover {
+                background: #2d3bff;
+            }
+
+            .btn-checkout:active {
+                transform: scale(0.98);
+            }
+
+        .btn-back {
+            width: 100%;
+            padding: 0.85rem;
+            border: 1.5px solid #d8d8d6;
+            border-radius: 999px;
+            background: transparent;
+            color: #1a1a1a;
+            font-family: inherit;
+            font-size: 0.93rem;
+            cursor: pointer;
+            margin-top: 0.6rem;
+            transition: border-color .2s;
+        }
+
+            .btn-back:hover {
+                border-color: #1a1a1a;
+            }
+
+        .secure-note {
+            text-align: center;
+            font-size: 0.78rem;
+            color: #bbb;
+            margin-top: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .validation-summary {
+            background: #fff5f5;
+            border: 1px solid #f0c0c0;
+            border-radius: 10px;
+            padding: 0.8rem 1rem;
+            margin-bottom: 1.4rem;
+            font-size: 0.85rem;
+            color: #c0392b;
+        }
+
+            .validation-summary ul {
+                padding-left: 1.2rem;
+                margin: 0;
+            }
+
+        @@media (max-width: 900px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid.three-col {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @@media (max-width: 520px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+                .form-grid.three-col {
+                    grid-template-columns: 1fr;
+                }
+
+            nav {
+                padding: 0 1rem;
+            }
+
+            .page {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+
+            .card {
+                padding: 1.4rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+
+        <!-- LEFT: FORMS -->
+        <div>
+            <form asp-action="PlaceOrder" asp-controller="Order" method="post" id="checkoutForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Total" />
+                <input type="hidden" asp-for="CustomerId" />
+                <input type="hidden" asp-for="CartId" />
+
+                @if (ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div asp-validation-summary="All" class="validation-summary"></div>
+                }
+                <!-- SHIPPING ADDRESS -->
+                <div class="card" style="margin-bottom: 1.2rem;">
+                    <p class="card-title">Delivery address</p>
+                    <p class="card-subtitle">Where should we send your order?</p>
+
+                    <div class="form-grid">
+                        <!-- fname-->
+                        <div class="form-group">
+                            <label asp-for="FirstName"></label>
+                            <input value="amr" asp-for="FirstName" />
+                            <span asp-validation-for="FirstName" class="field-error"></span>
+                        </div>
+                        <!-- lname -->
+                        <div class="form-group">
+                            <label asp-for="LastName"></label>
+                            <input value="hesham" asp-for="LastName" type="text" />
+                            <span asp-validation-for="LastName" class="field-error"></span>
+                        </div>
+                        <!-- phone -->
+                        <div class="form-group full">
+                            <label asp-for="PhoneNumber"></label>
+                            <input value="01068404669" asp-for="PhoneNumber"
+                                   placeholder="0112 345 6789" />
+                            <span asp-validation-for="PhoneNumber" class="field-error"></span>
+                        </div>
+                        <!-- Street-->
+                        <div class="form-group full">
+                            <label asp-for="ShippingAddress">Street address</label>
+                            <input value="behind lamera" asp-for="ShippingAddress"
+                                   placeholder="123 Main Street, Apt 4B"
+                                   class="@(ViewData.ModelState["ShippingAddress"]?.Errors.Count > 0 ? "input-error" : "")" />
+                            <span asp-validation-for="ShippingAddress" class="field-error"></span>
+                        </div>
+                        <!-- city-->
+                        <div class="form-group">
+                            <label asp-for="City">City</label>
+                            <input value="beni suef" asp-for="City" placeholder="Cairo" />
+                            <span asp-validation-for="City" class="field-error"></span>
+                        </div>
+                        <!-- ZIP -->
+                        <div class="form-group">
+                            <label asp-for="PostalCode">Postal code</label>
+                            <input value="62151" asp-for="PostalCode" type="text" placeholder="12345" />
+                            <span asp-validation-for="PostalCode" class="field-error"></span>
+                        </div>
+                        <!-- Country -->
+                        <div class="form-group full">
+                            <label asp-for="Country">Country</label>
+                            <select asp-for="Country">
+                                <option value="">Select country…</option>
+                                <option value="AU">Australia</option>
+                                <option value="CA">Canada</option>
+                                <option value="FR">France</option>
+                                <option value="EG">Egypt</option>
+                                <option value="SA">Saudi Arabia</option>
+                                <option value="DE">Germany</option>
+                                <option value="AE">UAE</option>
+                                <option value="US">United States</option>
+                                <option value="GB">United Kingdom</option>
+                            </select>
+                            <span asp-validation-for="Country" class="field-error"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAYMENT -->
+                <div class="card">
+                    <p class="card-title">Payment</p>
+                    <p class="card-subtitle">All transactions are secure and encrypted.</p>
+
+                    <!-- payment Type-->
+                    <!-- NEW -->
+                    <div class="payment-tabs">
+                        <button type="button" class="pay-tab active" data-type="Credit Card" onclick="selectPaymentType(this)">Credit Card</button>
+                        <button type="button" class="pay-tab" data-type="InstaPay" onclick="selectPaymentType(this)">InstaPay</button>
+                        <button type="button" class="pay-tab" data-type="On Delivery" onclick="selectPaymentType(this)">On Delivery</button>
+                    </div>
+                    <input type="hidden" asp-for="PaymentType" id="paymentTypeInput" value="Credit Card" />
+
+                    <!-- payment info-->
+                    <div id="cardFields">
+                        <p class="section-label">Card details</p>
+                        <!-- Icons -->
+                        <div style="display:flex; gap:0.5rem; margin-bottom:1rem; align-items:center;">
+                            <!-- Fawry -->
+                            <img src="~/images/icons/fawrypng.png" width="44" height="28" viewBox="0 0 44 28" fill="none" style="border:1px solid #e2e2df; border-radius:5px;">
+                            <!-- Meeza -->
+                            <img src="~/images/icons/meezapng.png" width="44" height="28" viewBox="0 0 44 28" fill="none" style="border:1px solid #e2e2df; border-radius:5px;">
+                            <!-- visa -->
+                            <img src="~/images/icons/visapng.png" width="44" height="28" viewBox="0 0 44 28" fill="none" style="border:1px solid #e2e2df; border-radius:5px;">
+                            <!-- mastercard -->
+                            <img src="~/images/icons/mastercardpng.png" width="44" height="28" viewBox="0 0 44 28" fill="none" style="border:1px solid #e2e2df; border-radius:5px;">
+                        </div>
+                        <!-- Card holder-->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label @* asp-for="CardHolder" *@>Cardholder name</label>
+                            <input @* asp-for="CardHolder" *@ type="text" placeholder="Ahmed Mohamed"
+                                   class="@(ViewData.ModelState["CardHolder"]?.Errors.Count > 0 ? "input-error" : "")" />
+                            <span @* asp-validation-for="CardHolder" *@ class="field-error"></span>
+                        </div>
+
+                        <!-- Card num -->
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <div class="input-icon-wrap">
+                                <label>Card number</label>
+                                <input name="CardNumber" type="text"
+                                       placeholder="0000  0000  0000  0000"
+                                       maxlength="22"
+                                       oninput="formatCardNumber(this)"
+                                       class="@(ViewData.ModelState["CardNumber"]?.Errors.Count > 0 ? "input-error" : "")" />
+                                <svg class="card-icon" width="28" height="18" viewBox="0 0 28 18" fill="none">
+                                    <rect width="28" height="18" rx="3" fill="#E8E8E6" />
+                                    <rect x="0" y="5" width="28" height="5" fill="#C8C8C4" />
+                                </svg>
+                            </div>
+                            @* <span asp-validation-for="CardNumber" class="field-error"></span> *@
+                        </div>
+
+                        <!-- Card exp date -->
+                        <div class="form-grid three-col">
+                            <div class="form-group">
+                                <label>Expiry date</label>
+                                <input name="ExpirationDate" type="text"
+                                       placeholder="MM / YY"
+                                       maxlength="7"
+                                       oninput="formatExpiry(this)"
+                                       class="@(ViewData.ModelState["ExpirationDate"]?.Errors.Count > 0 ? "input-error" : "")" />
+                                @* <span asp-validation-for="ExpirationDate" class="field-error"></span> *@
+                            </div>
+
+                            <!-- CVV -->
+                            <div class="form-group">
+                                <label>CVV</label>
+                                <input name="CVV" type="text"
+                                       placeholder="123"
+                                       maxlength="4"
+                                       oninput="this.value=this.value.replace(/\D/g,'')"
+                                       class="@(ViewData.ModelState["CVV"]?.Errors.Count > 0 ? "input-error" : "")" />
+                                @* <span asp-validation-for="CVV" class="field-error"></span> *@
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW -->
+                    <div id="instaPayInfo" style="display:none; text-align:center; padding: 1.5rem 0; color:#888; font-size:0.9rem;">
+                        Transfer to InstaPay account <strong style="color:#1a1a1a;">+20 12 345 6789</strong> and include your order number as a reference.
+                    </div>
+                    <div id="onDeliveryInfo" style="display:none; text-align:center; padding: 1.5rem 0; color:#888; font-size:0.9rem;">
+                        Pay in cash when your order arrives. Our delivery agent will collect payment at your door.
+                    </div>
+                </div>
+
+                @* @if (Model?.cartitems != null)
+                {
+                    for (int i = 0; i < Model.cartitems.Count; i++)
+                    {
+                        <input type="hidden" name="cartitems[@i].ProductId" value="@Model.cartitems[i].ProductId" />
+                        <input type="hidden" name="cartitems[@i].Quantity" value="@Model.cartitems[i].Quantity" />
+                    }
+                } *@
+
+            </form>
+        </div>
+
+        <!-- RIGHT: ORDER SUMMARY -->
+        <div>
+            <div class="card">
+                <p class="card-title">Order summary</p>
+                <p class="card-subtitle">Review before you pay</p>
+
+                <div class="summary-items">
+                    @if (Model?.cartitems != null && Model.cartitems.Any())
+                    {
+                        foreach (var item in Model.cartitems)
+                        {
+                            <div class="order-item">
+                                <img src="@item.product.ImageUrl" alt="@item.product.Name" class="item-img" />
+                                <div class="item-details">
+                                    <p class="item-name">@item.product.Name </p>
+                                    <p class="item-meta">Qty: @item.Quantity</p>
+                                    <p class="item-meta">Color: @item.Color</p>
+                                </div>
+                                <span class="item-price">$@((item.product.Price * item.Quantity).ToString("F2"))</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="color:#aaa; font-size:0.88rem;">No items in cart.</p>
+                    }
+                </div>
+
+                <hr class="section-divider" style="margin-top:0;" />
+
+                <div class="summary-row">
+                    <span class="label">Subtotal</span>
+                    <span class="value">$@Model?.Total.ToString("F2")</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Shipping</span>
+                    <span class="value" style="color:#888;">Calculated at checkout</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>$@Model?.Total.ToString("F2")</span>
+                </div>
+
+                <button type="submit" form="checkoutForm" class="btn-checkout">
+                    Place Order
+                </button>
+                <a asp-controller="Cart" asp-action="Index">
+                    <button type="button" class="btn-back">← Back to Cart</button>
+                </a>
+
+                <p class="secure-note">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" />
+                        <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                    Secure &amp; encrypted checkout
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function formatCardNumber(input) {
+            var v = input.value.replace(/\D/g, '').slice(0, 16);
+            input.value = v.replace(/(.{4})/g, '$1  ').trim();
+        }
+
+        function formatExpiry(input) {
+            var v = input.value.replace(/\D/g, '').slice(0, 4);
+            if (v.length >= 3) v = v.slice(0, 2) + ' / ' + v.slice(2);
+            input.value = v;
+        }
+
+        // NEW
+        function selectPaymentType(btn) {
+            document.querySelectorAll('.pay-tab').forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            var type = btn.dataset.type;
+            document.getElementById('paymentTypeInput').value = type;
+            document.getElementById('cardFields').style.display = type === 'Credit Card' ? '' : 'none';
+            document.getElementById('instaPayInfo').style.display = type === 'InstaPay' ? '' : 'none';
+            document.getElementById('onDeliveryInfo').style.display = type === 'On Delivery' ? '' : 'none';
+        }
+    </script>
+
+</body>
+</html>

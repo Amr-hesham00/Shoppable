@@ -1,0 +1,84 @@
+﻿@model Product
+
+<div class="container mt-4">
+    <div class="card shadow-lg border-0 rounded-4">
+
+        <div class="card-header bg-warning text-dark rounded-top-4">
+            <h4 class="mb-0">Edit Product</h4>
+        </div>
+
+        <div class="card-body p-4">
+
+            <form asp-action="SaveEdit" method="post">
+
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                <!-- Hidden Id -->
+                <input asp-for="Id" type="hidden" />
+
+                <!-- Product Name -->
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label fw-semibold"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label fw-semibold"></label>
+                    <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label fw-semibold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <!-- Stock Quantity -->
+                <div class="mb-3">
+                    <label asp-for="StockQuantity" class="form-label fw-semibold"></label>
+                    <input asp-for="StockQuantity" type="number" class="form-control" />
+                    <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                </div>
+
+                <!-- Image URL -->
+                <div class="mb-3">
+                    <label asp-for="ImageUrl" class="form-label fw-semibold"></label>
+                    <input asp-for="ImageUrl" class="form-control" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <!-- Created Date (Readonly) -->
+                <div class="mb-3">
+                    <label asp-for="CreatedDate" class="form-label fw-semibold"></label>
+                    <input asp-for="CreatedDate" class="form-control"  />
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-between mt-4">
+
+                    <a asp-controller="Dashboard"
+                       asp-action="Products"
+                       class="btn btn-outline-secondary">
+                        Back
+                    </a>
+
+                    <button  type="submit" class="btn btn-warning px-4"
+                            onclick="return confirm('Are you sure you want to Update this product?');">
+                        Update Product
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

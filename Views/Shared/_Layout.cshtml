@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Shoppable</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Shoppable.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="header-v1">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom p-t-15 p-b-15">
+            <div class="container-fluid">
+                <a class="navbar-brand logo-custom" asp-controller="Home" asp-action="Index">Shoppable</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 p-l-40">
+                        <li class="nav-item">
+                            <a class="nav-link active-link" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Contact</a>
+                        </li>
+                    </ul>
+
+                   
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+   
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Shoppable 
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+<style>
+    /* Logo Styling */
+    .logo-custom {
+        font-weight: 700;
+        font-size: 30px;
+        color: #3333ff !important; /* The specific blue from your image */
+        letter-spacing: -1px;
+    }
+
+    /* Nav Link Styling */
+    .navbar-nav .nav-link {
+        font-family: 'Poppins', sans-serif;
+        font-size: 15px;
+        color: #555 !important;
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        transition: 0.3s;
+    }
+
+    .active-link {
+        color: #6c7ae0 !important; /* Purple-blue active state */
+    }
+
+    /* The "HOT" Badge */
+    .pos-relative {
+        position: relative;
+    }
+
+    .badge-hot {
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        background-color: #f74877;
+        color: white;
+        font-size: 10px;
+        padding: 2px 5px;
+        border-radius: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    /* Login/Register Button */
+    .btn-login {
+        background-color: #333333;
+        color: white !important;
+        padding: 8px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+
+        .btn-login:hover {
+            background-color: #6c7ae0;
+        }
+
+    /* Icons and Notification Badges */
+    .icon-item {
+        font-size: 24px;
+        color: #333;
+        padding: 0 12px;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .icon-noti::after {
+        content: attr(data-notify);
+        position: absolute;
+        top: -5px;
+        right: 0px;
+        background-color: #6c7ae0;
+        color: white;
+        font-size: 11px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* Spacing helpers */
+    .p-l-40 {
+        padding-left: 40px;
+    }
+
+    .m-l-20 {
+        margin-left: 20px;
+    }</style>
+</html>
