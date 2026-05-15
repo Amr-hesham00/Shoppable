@@ -1,0 +1,105 @@
+﻿@model CustomerVM
+@{
+    ViewData["Title"] = "Customer Details";
+}
+
+<h1>Customer Details</h1>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Customer ID</dt>
+        <dd class="col-sm-9">@Model.Id</dd>
+
+        <dt class="col-sm-3">Customer Name</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Address</dt>
+        <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Address) ? "None" : Model.Address)</dd>
+
+        <dt class="col-sm-3">City</dt>
+        <dd class="col-sm-9">@Model.City</dd>
+
+        <dt class="col-sm-3">Phone Number</dt>
+        <dd class="col-sm-9">@Model.Phone</dd>
+    </dl>
+</div>
+
+@if (Model.orders != null && Model.orders.Any())
+{
+    <h3 class="mt-4">Orders</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Order Id</th>
+                <th>OrderDate</th>
+                <th>Status</th>
+                <th>PhoneNumber</th>
+                <th>Shipping Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.orders.Count; i++)
+            {
+                var order = Model.orders[i];
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@order.Id</td>
+                    <td>@order.OrderDate</td>
+                    <td>
+
+                        @switch (order.Status.ToString())
+                        {
+                            case "PendingPayment":
+                                <span class="badge bg-warning text-dark">Pending Payment</span>
+                                break;
+
+                            case "AwaitingVerification":
+                                <span class="badge bg-info text-dark">Awaiting Verification</span>
+                                break;
+
+                            case "Verified":
+                                <span class="badge bg-primary">Verified</span>
+                                break;
+
+                            case "Rejected":
+                                <span class="badge bg-danger">Rejected</span>
+                                break;
+
+                            case "Shipped":
+                                <span class="badge bg-info">Shipped</span>
+                                break;
+
+                            case "Delivered":
+                                <span class="badge bg-success">Delivered</span>
+                                break;
+
+                            case "Cancelled":
+                                <span class="badge bg-secondary">Cancelled</span>
+                                break;
+
+                            case "Refunded":
+                                <span class="badge bg-dark">Refunded</span>
+                                break;
+
+                            default:
+                                <span class="badge bg-light text-dark">Unknown</span>
+                                break;
+                        }
+
+                    </td>
+                    <td>@order.PhoneNumber</td>
+                    <td>@order.ShippingAddress</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="mt-4 text-muted">No orders found for this customer.</p>
+}
+
+<div class="mt-4">
+    <a asp-action="Customers" asp-controller="Dashboard" class="btn btn-secondary ms-2">Back to List</a>
+</div>

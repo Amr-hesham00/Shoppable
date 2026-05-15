@@ -1,4 +1,5 @@
-﻿using Shoppable.Enum;
+﻿using Shoppable.Data.UnitOfWork;
+using Shoppable.Enum;
 using Shoppable.Repositories.Generic;
 using Shoppable.Repositories.IRepositories;
 
@@ -6,23 +7,26 @@ namespace Shoppable.Services.IServices;
 
 public class ProductService : GenericRepo<Product>, IProductService
 {
-    private readonly IMerchantRepo IMerchantRepo;
-    private readonly IProductRepo IProductRepo;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public ProductService(AppDbContext context, IMerchantRepo IMerchantRepo, IProductRepo iProductRepo) : base(context)
+    //IMerchantRepo IMerchantRepo;
+    //IProductRepo IProductRepo;
+
+    public ProductService(AppDbContext context, IMerchantRepo IMerchantRepo, IProductRepo iProductRepo, IUnitOfWork unitOfWork) : base(context)
     {
-        this.IMerchantRepo = IMerchantRepo;
-        IProductRepo = iProductRepo;
+        //this.IMerchantRepo = IMerchantRepo;
+        //IProductRepo = iProductRepo;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Product?> ProductDetails(int id)
     {
-        return await IProductRepo.GetById(id);
+        return await _unitOfWork.Product.GetById(id);
     }
 
     public async Task SaveCreateAsync(CreateProductVM VM, string userid)
     {
-        Merchant m = await IMerchantRepo.GetByUserIdAsync(userid);
+        Merchant m = await _unitOfWork.Merchant.GetByUserIdAsync(userid);
 
         Product p = new Product
         {
@@ -60,19 +64,19 @@ public class ProductService : GenericRepo<Product>, IProductService
 
             p.ImageUrl = $"/images/Products/{fileName}"; // the url will be opened when needed to display the image.
         }
-        await IProductRepo.CreateAsync(p);
-        await IProductRepo.SaveAsync();
+        await _unitOfWork.Product.CreateAsync(p);
+        await _unitOfWork.Product.SaveAsync();
     }
     public async Task SaveDeleteAsync(int id)
     {
-        Product p = await IProductRepo.GetById(id);
+        Product p = await _unitOfWork.Product.GetById(id);
         p.IsDeleted = p.IsDeleted == true ? false : true;
-        await IProductRepo.SaveAsync();
+        await _unitOfWork.Product.SaveAsync();
     }
 
     public async Task SaveUpdateAsync(Product VM)
     {
-        Product p = await IProductRepo.GetById(VM.Id);
+        Product p = await _unitOfWork.Product.GetById(VM.Id);
         p.StockQuantity = VM.StockQuantity;
         p.Price = VM.Price;
         p.CreatedDate = VM.CreatedDate;
@@ -80,8 +84,8 @@ public class ProductService : GenericRepo<Product>, IProductService
         p.ImageUrl = VM.ImageUrl;
         p.Name = VM.Name;
 
-        IProductRepo.Update(p);
-        await IProductRepo.SaveAsync();
+        _unitOfWork.Product.Update(p);
+        await _unitOfWork.Product.SaveAsync();
 
 
     }
@@ -89,7 +93,7 @@ public class ProductService : GenericRepo<Product>, IProductService
     public async Task<ShopVM> Shop(ShopVM VM)
     {
 
-        var products = await IProductRepo.GetAllAsync(new Product());
+        var products = await _unitOfWork.Product.GetAllAsync(new Product());
 
         var query = products.AsQueryable();
 

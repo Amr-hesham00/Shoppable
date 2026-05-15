@@ -1,5 +1,5 @@
 ﻿@using Shoppable.Enum
-@model Order
+@model OrderVM
 
 @{
     ViewData["Title"] = "Edit Order";
@@ -15,19 +15,35 @@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <input type="hidden" asp-for="Id" />
+            <input asp-for="CustomerId" class="form-control" hidden>
 
+
+            <!--fullname-->
+            <div class="form-group mb-3">
+                <label asp-for="FullName" class="control-label"></label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+            <!--phone number-->
+            <div class="form-group mb-3">
+                <label asp-for="PhoneNumber" class="control-label"></label>
+                <input asp-for="PhoneNumber" class="form-control" />
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+            <!--OrderDate-->
             <div class="form-group mb-3">
                 <label asp-for="OrderDate" class="control-label"></label>
                 <input asp-for="OrderDate" class="form-control" type="date" />
                 <span asp-validation-for="OrderDate" class="text-danger"></span>
             </div>
 
+            <!--TotalAmount-->
             <div class="form-group mb-3">
                 <label asp-for="TotalAmount" class="control-label"></label>
                 <input asp-for="TotalAmount" class="form-control" />
                 <span asp-validation-for="TotalAmount" class="text-danger"></span>
             </div>
-
+            <!--Status-->
             <div class="form-group mb-3">
                 <label asp-for="Status" class="control-label"></label>
                 <select asp-for="Status" class="form-control"
@@ -37,22 +53,16 @@
                 <span asp-validation-for="Status" class="text-danger"></span>
             </div>
 
+            <!--ShippingAddress-->
             <div class="form-group mb-3">
                 <label asp-for="ShippingAddress" class="control-label"></label>
                 <textarea asp-for="ShippingAddress" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="ShippingAddress" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="CustomerId" class="control-label"></label>
-                <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.CustomerId">
-                    <option value="">-- Select Customer --</option>
-                </select>
-                <span asp-validation-for="CustomerId" class="text-danger"></span>
-            </div>
 
             <div class="form-group mt-4">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Save" class="btn btn-primary" onclick="return confirm('Are you sure you want to Edit this order?');" />
                 <a asp-action="Orders" asp-controller="dashboard" class="btn btn-secondary ms-2">Back to List</a>
             </div>
         </form>

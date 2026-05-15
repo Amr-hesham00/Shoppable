@@ -1,0 +1,29 @@
+## Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider / VS Code
+.idea/
+.vscode/
+
+## NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+
+## ASP.NET
+appsettings.Development.json
+secrets.json
+
+## OS
+Thumbs.db
+.DS_Store

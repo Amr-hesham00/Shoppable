@@ -10,6 +10,13 @@ public class CustomerRepo : GenericRepo<Customer>, ICustomerRepo
     {
     }
 
+
+
+    public async Task<Customer> GetById_With_Orders(int id)
+    {
+        return await dbset.Include(x => x.orders).FirstOrDefaultAsync(x => x.Id == id);
+
+    }
     public async Task<List<Customer>?> GetByMerchantId(int merchantId)
     {
         if (dbset == null) return null; // Or throw a descriptive error

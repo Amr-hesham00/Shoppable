@@ -160,31 +160,41 @@
                     </div>
                 </div>
                 <!-------------------------- Filteration ----------------------------->
-                @* <div class="card shadow-sm mb-4">
+                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <form asp-action="Products" method="get">
+                        <form asp-action="Orders" method="get">
 
                             <div class="row g-2 mb-3">
                                 <div class="col-md-2">
-                                    <label class="form-label fw-semibold small">Search</label>
-                                    <input type="text" name="Name" value="@ViewData["CurrentFilter"]" class="form-control form-control-sm" placeholder="Name...">
+                                    <label class="form-label fw-semibold small">Id</label>
+                                    <input type="number" min="0" name="Id" class="form-control form-control-sm" placeholder="Id...">
                                 </div>
                                 <div class="col-md-1">
-                                    <label class="form-label fw-semibold small">Status</label>
-                                    <select name="status" class="form-select form-select-sm">
+                                    <label class="form-label fw-semibold small">Order Status</label>
+                                    <select name="orderstatus" class="form-select form-select-sm">
                                         <option value="">All</option>
-                                        <option value="true">Active</option>
-                                        <option value="false">Inactive</option>
+                                        <option value="0">PendingPayment</option>
+                                        <option value="1">AwaitingVerification</option>
+                                        <option value="2">Verified</option>
+                                        <option value="3">Rejected</option>
+                                        <option value="4">Shipped</option>
+                                        <option value="5">Delivered</option>
+                                        <option value="6">Cancelled</option>
+                                        <option value="7">Refunded</option>
                                     </select>
                                 </div>
+
+                                @**@
                                 <div class="col-md-1">
-                                    <label class="form-label fw-semibold small">Less than $</label>
-                                    <input placeholder="Max" type="number" min="1" name="MinPrice" class="form-control form-control-sm">
+                                    <label class="form-label fw-semibold small">$ Less than</label>
+                                    <input placeholder="Max" type="number" min="1" name="MaxPrice" class="form-control form-control-sm">
                                 </div>
                                 <div class="col-md-1">
-                                    <label class="form-label fw-semibold small">Greater than $</label>
-                                    <input placeholder="Min" type="number" min="1" name="MaxPrice" class="form-control form-control-sm">
+                                    <label class="form-label fw-semibold small">$ Greater than</label>
+                                    <input placeholder="Min" type="number" min="1" name="MinPrice" class="form-control form-control-sm">
                                 </div>
+                                @**@
+
                                 <div class="col-md-1">
                                     <label class="form-label fw-semibold small">Qt. less than</label>
                                     <input placeholder="Max" type="number" min="1" name="MaxStockQuantity" class="form-control form-control-sm">
@@ -204,13 +214,13 @@
                             </div>
 
                             <div class="d-flex justify-content-start gap-2">
-                                <a asp-action="Products" class="btn btn-sm btn-outline-secondary px-4">Clear All Filters</a>
+                                <a asp-action="Orders" class="btn btn-sm btn-outline-secondary px-4">Clear All Filters</a>
                                 <button type="submit" class="btn btn-sm btn-primary px-5">Apply Filters</button>
                             </div>
 
                         </form>
                     </div>
-                </div> *@
+                </div> 
                 <!------------------------------------------------------->
 
 
@@ -226,7 +236,8 @@
                             <thead class="table-dark">
                                 <tr>
                                     <th>#</th>
-                                    <th>Customer</th>
+                                    <th>Order Id</th>
+                                    <th>Customer Id</th>
                                     <th>Items</th>
                                     <th>Date</th>
                                     <th>Total</th>
@@ -237,38 +248,41 @@
 
                             <tbody>
 
-                                @foreach (var order in Model.Orders)
+                                @for (int i = 0; i < Model.Orders.Count(); i++)
                                 {
                                     <tr>
+                                        <!--order num-->
+                                        <td class="fw-semibold">#@(i+1)</td>
+
                                         <!--orderId-->
-                                        <td class="fw-semibold">#@order.Id</td>
+                                        <td class="fw-semibold">@Model.Orders[i].Id</td>
 
                                         <!--Customerid-->
                                         <td>
-                                            @order.CustomerId
+                                            @Model.Orders[i].CustomerId
                                         </td>
 
                                         <!--Items Count-->
                                         <td>
                                             <span class="badge bg-secondary">
-                                                @order.orderItems.Count Items
+                                                @Model.Orders[i].orderItems.Count Items
                                             </span>
                                         </td>
 
                                         <!--Order Date-->
                                         <td>
-                                            @order.OrderDate.ToString("dd MMM yyyy")
+                                            @Model.Orders[i].OrderDate.ToString("dd MMM yyyy")
                                         </td>
 
                                         <!--Total Amount-->
                                         <td class="fw-semibold text-success">
-                                            $@order.TotalAmount
+                                            $@Model.Orders[i].TotalAmount
                                         </td>
 
                                         <!-- Status -->
                                         <td>
 
-                                            @switch (order.Status.ToString())
+                                            @switch (Model.Orders[i].Status.ToString())
                                             {
                                                 case "PendingPayment":
                                                     <span class="badge bg-warning text-dark">Pending Payment</span>
@@ -316,7 +330,7 @@
                                                 <!-- View -->
                                                 <a asp-controller="Order"
                                                    asp-action="Details"
-                                                   asp-route-id="@order.Id"
+                                                   asp-route-id="@Model.Orders[i].Id"
                                                    class="btn btn-outline-info">
                                                     View
                                                 </a>
@@ -324,7 +338,7 @@
                                                 <!-- Edit -->
                                                 <a asp-controller="Order"
                                                    asp-action="Edit"
-                                                   asp-route-id="@order.Id"
+                                                   asp-route-id="@Model.Orders[i].Id"
                                                    class="btn btn-outline-warning">
                                                     Edit
                                                 </a>
@@ -332,7 +346,7 @@
                                                 <!-- Toggle Active -->
                                                 <a asp-controller="Order"
                                                    asp-action="Delete"
-                                                   asp-route-id="@order.Id"
+                                                   asp-route-id="@Model.Orders[i].Id"
                                                    class="btn btn-outline-danger"
                                                    onclick="return confirm('Are you sure you want to Delete this order?');">
                                                     Delete

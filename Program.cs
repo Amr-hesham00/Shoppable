@@ -1,10 +1,26 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Shoppable.Data.UnitOfWork;
 using Shoppable.Repositories;
 using Shoppable.Repositories.Generic;
 using Shoppable.Repositories.IRepositories;
 using Shoppable.Services;
 using Shoppable.Services.IServices;
+
+/*
+==== Home page ====
+* cart icon number in nav bar
+* Serch icon in nav bar
+* load more button
+* add more sections
+* products section(filter, search buttons)
+* vodafone,instapay icons
+* footer
+* add account settings page
+* add customer orders page
+===================
+
+ */
 
 var builder = WebApplication.CreateBuilder(args);
 //----------------------------------------------------------------------------
@@ -30,13 +46,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
 
 builder.Services.AddScoped(typeof(IGenericRepo<>), typeof(GenericRepo<>)); // inject the generic repository
 builder.Services.AddScoped<IProductRepo, ProductRepo>(); // inject Product repository
-builder.Services.AddScoped<IMerchantRepo, MerchantRepo>(); // inject Product repository
+builder.Services.AddScoped<IMerchantRepo, MerchantRepo>();
 builder.Services.AddScoped<IOrderRepo, OrderRepo>();
 builder.Services.AddScoped<IOrderItemRepo, OrderItemRepo>();
 builder.Services.AddScoped<ICustomerRepo, CustomerRepo>();
 builder.Services.AddScoped<ICartRepo, CartRepo>();
 builder.Services.AddScoped<ICartItemRepo, CartItemRepo>();
 builder.Services.AddScoped<IPaymentRepo, PaymentRepo>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // UoW
 
 //--------------------------------------services--------------------------------------
 
@@ -45,8 +63,8 @@ builder.Services.AddScoped<IProductService, ProductService>(); // inject Product
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 //builder.Services.AddScoped<ICartItemService, CartItemService>();
-//builder.Services.AddScoped<ICustomerService, CustomerService>();
 //builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 //builder.Services.AddScoped<IMerchantService, MerchantService>();
 

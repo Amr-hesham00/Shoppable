@@ -5,7 +5,7 @@ namespace Shoppable.Controllers;
 
 public class PaymentController : Controller
 {
-    private IPaymentService IPaymentService;
+      IPaymentService IPaymentService;
 
     public PaymentController(IPaymentService iPaymentService)
     {

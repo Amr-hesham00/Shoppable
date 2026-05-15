@@ -499,7 +499,7 @@
                 </div>
             </div>
 
-            <!-- Block1 -->
+            <!-- products list -->
             <div class="row isotope-grid">
                 @foreach (var product in Model.Products)
                 {
@@ -566,6 +566,51 @@
                 <a href="#" class="flex-c-m stext-101 cl5 size-103 bg2 bor1 hov-btn1 p-lr-15 trans-04">
                     Load More
                 </a>
+            </div>
+
+            <!-- Shop by category -->
+            <div class="p-t-75 p-b-10">
+                <div class="flex-col-l p-b-35">
+                    <h2 class="ltext-102 cl2 p-b-8">
+                        Shop by category
+                    </h2>
+                    <span class="stext-107 cl6">
+                        T-shirts, pants, shoes, accessories, and more
+                    </span>
+                </div>
+                <div class="flex-w flex-l-m">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Men" asp-route-Search="tshirt" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">T-shirts</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Men" asp-route-Search="pant" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Pants</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Men" asp-route-Search="polo" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Polo</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Men" asp-route-Search="shirt" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Shirts</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Women" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Women</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Men" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Men</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Shoes" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Shoes</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Bag" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Bags</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Bag" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Accessories</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@Category.Watches" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Watches</a>
+                </div>
+            </div>
+
+            <!-- Shop by brand -->
+            <div class="p-t-45 p-b-5">
+                <div class="flex-col-l p-b-35">
+                    <h2 class="ltext-102 cl2 p-b-8">
+                        Shop by brand
+                    </h2>
+                    <span class="stext-107 cl6">
+                        ZARA, Pull&amp;Bear, local labels, and more
+                    </span>
+                </div>
+                <div class="flex-w flex-l-m">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-Search="Zara" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">ZARA</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-Search="Pull" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Pull&amp;Bear</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-Search="H&amp;M" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">H&amp;M</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-Search="Gucci" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Gucci</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-Search="Defacto" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">DeFacto</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-Search="local" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">Local brands</a>
+                    <a asp-controller="Product" asp-action="ShopProducts" class="flex-c-m stext-106 cl2 bor1 p-lr-23 p-tb-11 hov-btn1 trans-04 m-r-10 m-b-10">All brands</a>
+                </div>
             </div>
         </div>
     </div>

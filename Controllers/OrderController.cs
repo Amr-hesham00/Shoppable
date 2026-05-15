@@ -7,8 +7,8 @@ namespace Shoppable.Controllers;
 
 public class OrderController : Controller
 {
-    private readonly IOrderService IOrderService;
-    private readonly IOrderRepo IOrderRepo;
+        IOrderService IOrderService;
+        IOrderRepo IOrderRepo;
 
     public OrderController(IOrderRepo iOrderRepo, IOrderService iOrderService)
     {
@@ -21,20 +21,20 @@ public class OrderController : Controller
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        Order? p = await IOrderRepo.Order_byId_WithItems(id);
-        return View("Edit", p);
+
+        OrderVM VM = await IOrderService.GetOrderVM(id);
+        return View("Edit", VM);
     }
 
     [HttpPost]
-    public async Task<IActionResult> SaveEditAsync(Order VM)
+    public async Task<IActionResult> SaveEditAsync(OrderVM VM)
     {
         if (ModelState.IsValid)
         {
-
             await IOrderService.SaveUpdateAsync(VM);
             return RedirectToAction("Orders", "Dashboard");
         }
-        return RedirectToAction("Edit", VM.Id);
+        return RedirectToAction("Edit", new { id = VM.Id });
     }
 
     [HttpGet]

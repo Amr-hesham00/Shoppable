@@ -6,10 +6,10 @@ namespace Shoppable.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IProductService IproductService;
+            IProductService IproductService;
 
 
-        private readonly ILogger<HomeController> _logger;
+            ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger, IProductService iproductService)
         {

@@ -1,28 +1,32 @@
-﻿using Shoppable.Repositories.IRepositories;
+﻿using Shoppable.Data.UnitOfWork;
+using Shoppable.Repositories.IRepositories;
 using Shoppable.Services.IServices;
 
 namespace Shoppable.Services;
 
 public class PaymentService : IPaymentService
 {
-    private readonly IPaymentRepo IPaymentRepo;
-    private readonly ICartRepo ICartRepo;
-    //private readonly ICartItemRepo ICartItemRepo;
-    //private readonly IMerchantRepo IMerchantRepo;
-    //private readonly IProductRepo IProductRepo;
-    //private readonly IOrderItemRepo IOrderItemRepo;
-    //private readonly IOrderRepo IOrderRepo;
-    //private readonly ICustomerRepo ICustomerRepo;
-    //private readonly UserManager<ApplicationUser> userManager;
-    public PaymentService(IPaymentRepo iPaymentRepo, ICartRepo iCartRepo)
+    private readonly IUnitOfWork unitOfWork;
+
+    //IPaymentRepo IPaymentRepo;
+    //ICartRepo ICartRepo;
+    //    ICartItemRepo ICartItemRepo;
+    //    IMerchantRepo IMerchantRepo;
+    //    IProductRepo IProductRepo;
+    //    IOrderItemRepo IOrderItemRepo;
+    //    IOrderRepo IOrderRepo;
+    //    ICustomerRepo ICustomerRepo;
+    //    UserManager<ApplicationUser> userManager;
+    public PaymentService(IPaymentRepo iPaymentRepo, ICartRepo iCartRepo, IUnitOfWork unitOfWork)
     {
-        IPaymentRepo = iPaymentRepo;
-        ICartRepo = iCartRepo;
+        //IPaymentRepo = iPaymentRepo;
+        //ICartRepo = iCartRepo;
+        this.unitOfWork = unitOfWork;
     }
 
     public async Task<PaymentVM> SetPaymentVM(int cartid)
     {
-        Cart? cart = await ICartRepo.GetWithItemsById(cartid);
+        Cart? cart = await unitOfWork.Cart.GetWithItemsById(cartid);
         PaymentVM vm = new()
         {
             cartitems = cart.cartitems,

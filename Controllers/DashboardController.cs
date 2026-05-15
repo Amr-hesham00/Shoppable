@@ -9,7 +9,7 @@ namespace Shoppable.Controllers;
 public class DashboardController : Controller
 {
 
-    private readonly IDashboardService dashboardService;
+        IDashboardService dashboardService;
 
     public DashboardController(IDashboardService dashboardService)
     {
@@ -33,6 +33,28 @@ public class DashboardController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> Orders(OrdersFilterVM VM)
+    {
+        string? userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //@ViewData["CurrentFilter"] = VM.Name;
+
+        var data = await dashboardService.Orders(userid, VM);
+
+        return View("Orders", data);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Customers(CustomersFilterVM VM)
+    {
+        string? userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        @ViewData["CurrentFilter"] = VM.Name;
+
+        var data = await dashboardService.Customers(userid, VM);
+
+        return View("Customers", data);
+    }
+
+    [HttpGet]
     public async Task<IActionResult> Products(ProductFilterVM VM)
     {
         string? userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -44,25 +66,6 @@ public class DashboardController : Controller
         return View("Products", data);
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Orders(OrdersFilterVM VM)
-    {
-        string? userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        var data = await dashboardService.Orders(userid, VM);
-
-        return View("Orders", data);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Customers(CustomersFilterVM VM)
-    {
-        string? userid = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        var data = await dashboardService.Customers(userid, VM);
-
-
-        return View("Customers", data);
-    }
     [HttpGet]
     public async Task<IActionResult> Account(AccountDashboardVM VM)
     {

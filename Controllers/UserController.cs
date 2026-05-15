@@ -1,20 +1,24 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Shoppable.Data.UnitOfWork;
 using System.Security.Claims;
 
 namespace Shoppable.Controllers;
 
 public class UserController : Controller
 {
-    private readonly UserManager<ApplicationUser> userManager;
-    private readonly SignInManager<ApplicationUser> signInManager;
-    private readonly AppDbContext context;
+    private readonly IUnitOfWork unitOfWork;
 
-    public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext context)
+    UserManager<ApplicationUser> userManager;
+    SignInManager<ApplicationUser> signInManager;
+    AppDbContext context;
+
+    public UserController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AppDbContext context, IUnitOfWork unitOfWork)
     {
         this.userManager = userManager;
         this.signInManager = signInManager;
         this.context = context;
+        this.unitOfWork = unitOfWork;
     }
 
     public IActionResult SignUp()

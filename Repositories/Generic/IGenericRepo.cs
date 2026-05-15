@@ -1,4 +1,6 @@
-﻿namespace Shoppable.Repositories.Generic;
+﻿using Shoppable.Specifications.Parents;
+
+namespace Shoppable.Repositories.Generic;
 
 public interface IGenericRepo<T> where T : class
 {
@@ -8,4 +10,7 @@ public interface IGenericRepo<T> where T : class
     public Task SaveAsync();
     public Task<List<T>> GetAllAsync(T var);
     public Task<T?> GetById(int id);
+
+    List<T> GetBySpecification(
+     ISpecification<T> specification);
 }

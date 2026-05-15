@@ -2,7 +2,9 @@
 
 public interface IOrderService
 {
-    public Task SaveUpdateAsync(Order order);
+    public Task SaveUpdateAsync(OrderVM order);
     public Task<bool> PlaceOrder(PaymentVM VM, string userid);
     public Task SaveDeleteAsync(int id);
+    public Task<OrderVM> GetOrderVM(int id);
+
 }

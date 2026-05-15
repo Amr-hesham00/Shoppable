@@ -7,8 +7,8 @@ namespace Shoppable.Controllers;
 
 public class ProductController : Controller
 {
-    private readonly IProductService IproductService;
-    private readonly IProductRepo IProductRepo;
+    IProductService IproductService;
+    IProductRepo IProductRepo;
 
     public ProductController(IProductService iproductService, IProductRepo iProductRepo)
     {
@@ -27,6 +27,8 @@ public class ProductController : Controller
         VM = await IproductService.Shop(VM);
         return View("ShopProducts", VM);
     }
+
+    //======================== merchant actions ========================
     public IActionResult Create()
     {
         return View("CreateProduct");
@@ -82,6 +84,7 @@ public class ProductController : Controller
         Product p = await IProductRepo.GetById(id);
         return View("Details", p);
     }
+    //=================================================================
 
 }
 

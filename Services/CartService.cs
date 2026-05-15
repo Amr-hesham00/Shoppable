@@ -1,37 +1,41 @@
-﻿using Shoppable.Repositories.IRepositories;
+﻿using Shoppable.Data.UnitOfWork;
+using Shoppable.Repositories.IRepositories;
 using Shoppable.Services.IServices;
 
 namespace Shoppable.Services;
 
 public class CartService : ICartService
 {
-    private readonly ICartRepo ICartRepo;
-    private readonly IProductRepo IProductRepo;
-    private readonly ICustomerRepo ICustomerRepo;
-    private readonly ICartItemRepo ICartItemRepo;
-    //private readonly UserManager<ApplicationUser> userManager;
-    //private readonly IMerchantRepo IMerchantRepo;
-    //private readonly IOrderItemRepo IOrderItemRepo;
-    //private readonly IOrderRepo IOrderRepo;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public CartService(ICartRepo cartRepo, /*ICartItemRepo iCartItemRepo, UserManager<ApplicationUser> userManager,*/ ICustomerRepo iCustomerRepo, IProductRepo iProductRepo, ICartItemRepo iCartItemRepo)
+    //ICartRepo ICartRepo;
+    //IProductRepo IProductRepo;
+    //ICustomerRepo ICustomerRepo;
+    //ICartItemRepo ICartItemRepo;
+    //    UserManager<ApplicationUser> userManager;
+    //    IMerchantRepo IMerchantRepo;
+    //    IOrderItemRepo IOrderItemRepo;
+    //    IOrderRepo IOrderRepo;
+
+    public CartService(ICartRepo cartRepo, /*ICartItemRepo iCartItemRepo, UserManager<ApplicationUser> userManager,*/ ICustomerRepo iCustomerRepo, IProductRepo iProductRepo, ICartItemRepo iCartItemRepo, IUnitOfWork unitOfWork)
     {
-        ICartRepo = cartRepo;
+        //ICartRepo = cartRepo;
         //ICartItemRepo = iCartItemRepo;
         //this.userManager = userManager;
-        ICustomerRepo = iCustomerRepo;
-        IProductRepo = iProductRepo;
-        ICartItemRepo = iCartItemRepo;
+        //ICustomerRepo = iCustomerRepo;
+        //IProductRepo = iProductRepo;
+        //ICartItemRepo = iCartItemRepo;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Cart?> GetOrCreateCartAsync(string userId)
     {
-        var cart = await ICartRepo.GetByUserId(userId);
+        var cart = await _unitOfWork.Cart.GetByUserId(userId);
 
 
         if (cart == null)
         {
-            var customer = await ICustomerRepo.GetByUserId(userId);
+            var customer = await _unitOfWork.Customer.GetByUserId(userId);
 
             if (customer == null)
                 return null;
@@ -44,8 +48,8 @@ public class CartService : ICartService
 
             };
 
-            await ICartRepo.CreateAsync(cart);
-            await ICartRepo.SaveAsync();
+            await _unitOfWork.Cart.CreateAsync(cart);
+            await _unitOfWork.Cart.SaveAsync();
         }
 
         return cart;
@@ -59,7 +63,7 @@ public class CartService : ICartService
             return Result.Fail("Not a Customer");
         }
 
-        var product = await IProductRepo.GetById(VM.ProductId);
+        var product = await _unitOfWork.Product.GetById(VM.ProductId);
 
         // if item already exists 
         var existingItem = cart.cartitems.FirstOrDefault(i =>
@@ -104,8 +108,8 @@ public class CartService : ICartService
         }
 
 
-        ICartRepo.Update(cart);
-        await ICartRepo.SaveAsync();
+        _unitOfWork.Cart.Update(cart);
+        await _unitOfWork.Cart.SaveAsync();
 
         return Result.Ok("Item Added Successfully");
 
@@ -117,8 +121,8 @@ public class CartService : ICartService
 
         cart.cartitems.Clear();
 
-        ICartRepo.Update(cart);
-        await ICartRepo.SaveAsync();
+        _unitOfWork.Cart.Update(cart);
+        await _unitOfWork.Cart.SaveAsync();
     }
 
     public async Task RemoveFromCartAsync(string userId, int ItemId)
@@ -129,16 +133,16 @@ public class CartService : ICartService
 
         cart.cartitems.Remove(cartitem);
 
-        ICartRepo.Update(cart);
-        await ICartRepo.SaveAsync();
+        _unitOfWork.Cart.Update(cart);
+        await _unitOfWork.Cart.SaveAsync();
     }
 
     public async Task UpdateItemAsync(int itemId, int quantity)
     {
-        var item = await ICartItemRepo.GetById(itemId);
+        var item = await _unitOfWork.CartItem.GetById(itemId);
         item.Quantity = quantity;
 
-        ICartItemRepo.Update(item);
-        await ICartItemRepo.SaveAsync();
+        _unitOfWork.CartItem.Update(item);
+        await _unitOfWork.CartItem.SaveAsync();
     }
 }

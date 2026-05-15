@@ -1,12 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Shoppable.Specifications.Parents;
 
 namespace Shoppable.Repositories.Generic;
 
 public class GenericRepo<T> : IGenericRepo<T> where T : class //, IHasUserId, IHasMerchantId
 {
     // context and dbSet = protected =>  So child repositories can use them.
-    protected readonly AppDbContext context;
-    protected readonly DbSet<T> dbset; // Dbset<Product>
+    protected AppDbContext context;
+    protected DbSet<T> dbset; // Dbset<Product>
     public GenericRepo(AppDbContext context)
     {
         this.context = context;
@@ -43,4 +44,10 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class //, IHasUserId, IH
         return await dbset.FindAsync(id); // return entity or null
     }
 
+    public List<T> GetBySpecification(
+        ISpecification<T> specification)
+    {
+        return dbset.Where(specification.Criteria)
+            .ToList();
+    }
 }
