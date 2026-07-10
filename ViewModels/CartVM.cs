@@ -1,4 +1,4 @@
-﻿namespace Shoppable.ViewModels;
+namespace Shoppable.ViewModels;
 
 public class CartVM
 {

@@ -109,7 +109,6 @@ public class OrderService : GenericRepo<Order>, IOrderService
 
         return true;
     }
-
     public async Task SaveDeleteAsync(int id)
     {
         Order? order = await _unitOfWork.Order.GetById(id);
@@ -117,5 +116,21 @@ public class OrderService : GenericRepo<Order>, IOrderService
         await _unitOfWork.Order.SaveAsync();
     }
 
+    public async Task<AllOrdersVM> GetAllOrders(string userid)
+    {
 
+        var customer = await _unitOfWork.Customer.GetByUserId(userid);
+
+        if (customer != null)
+        {
+            var orders = await _unitOfWork.Order.Orders_by_cust_Id_WithItems(customer.Id);
+
+            return new AllOrdersVM
+            {
+                orders = orders
+            };
+        }
+        return null;
+
+    }
 }

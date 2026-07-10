@@ -24,11 +24,9 @@
   <ItemGroup>
     <None Include="Views\Home\about.cshtml" />
     <None Include="Views\Home\contact.cshtml" />
-    <None Include="Views\Product\product-detail.cshtml" />
+    <None Include="Views\Shared\product-detail.cshtml" />
     <None Include="Views\Home\product.cshtml" />
     <None Include="Views\Home\shopping-cart.cshtml" />
-    <None Include="wwwroot\documents\Screenshot 2026-02-21 001424.png" />
-    <None Include="wwwroot\documents\Shoppable.docx" />
   </ItemGroup>
 
   <ItemGroup>

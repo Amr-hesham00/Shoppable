@@ -7,5 +7,7 @@ public interface ICartService
     public Task RemoveFromCartAsync(string userId, int ItemId);
     public Task ClearCartAsync(string userId);
     public Task UpdateItemAsync(int CartId, int quantity);
+    public Task<bool> CheckCustomer(string userid);
+
 
 }

@@ -8,17 +8,8 @@ using Shoppable.Services;
 using Shoppable.Services.IServices;
 
 /*
-==== Home page ====
-* cart icon number in nav bar
-* Serch icon in nav bar
-* load more button
-* add more sections
-* products section(filter, search buttons)
-* vodafone,instapay icons
-* footer
-* add account settings page
-* add customer orders page
-===================
+==== Products ====
+* add products and merchants
 
  */
 

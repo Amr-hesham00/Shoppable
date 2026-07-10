@@ -7,6 +7,5 @@ public enum Category
     Men,
     Bag,
     Shoes,
-    Watches,
-    Other
+    Watches
 }

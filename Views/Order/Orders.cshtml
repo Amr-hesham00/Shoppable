@@ -1,0 +1,175 @@
+@model AllOrdersVM
+
+@{
+    ViewData["Title"] = "My Orders";
+    var orders = Model.orders ?? new List<Order>();
+    var hasOrders = orders.Any();
+}
+
+<div class="orders-page bg0 p-t-75 p-b-85">
+    <div class="container">
+
+        @if (!hasOrders)
+        {
+            <div class="orders-card orders-empty">
+                <div class="orders-empty-icon">
+                    <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 01-8 0" />
+                    </svg>
+                </div>
+                <h3>No orders yet</h3>
+                <p>
+                    When you place your first order, it will appear here so you can track its status and review your purchase history.
+                </p>
+                <a asp-controller="Product" asp-action="ShopProducts" class="orders-shop-btn">
+                    Start Shopping
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Page Header -->
+            <div class="orders-page-header">
+                <div>
+                    <h1 class="orders-page-title">My Orders</h1>
+                    <p class="orders-page-subtitle">@orders.Count order@(orders.Count > 1 ? "s" : "") placed</p>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="orders-stats-row">
+                <div class="orders-stat-card">
+                    <span class="stat-icon stat-icon-total">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
+                        </svg>
+                    </span>
+                    <span class="stat-number">@orders.Count</span>
+                    <span class="stat-label">Total Orders</span>
+                </div>
+                <div class="orders-stat-card">
+                    <span class="stat-icon stat-icon-spent">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                        </svg>
+                    </span>
+                    <span class="stat-number">$@orders.Sum(o => o.TotalAmount).ToString("F2")</span>
+                    <span class="stat-label">Total Spent</span>
+                </div>
+                <div class="orders-stat-card">
+                    <span class="stat-icon stat-icon-delivered">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </span>
+                    <span class="stat-number">@orders.Count(o => o.Status.ToString() == "Delivered")</span>
+                    <span class="stat-label">Delivered</span>
+                </div>
+                <div class="orders-stat-card">
+                    <span class="stat-icon stat-icon-progress">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </span>
+                    <span class="stat-number">@orders.Count(o => o.Status.ToString() == "Shipped" || o.Status.ToString() == "PendingPayment" || o.Status.ToString() == "AwaitingVerification" || o.Status.ToString() == "Verified")</span>
+                    <span class="stat-label">In Progress</span>
+                </div>
+            </div>
+
+            <!-- Order Cards Grid -->
+            <div class="orders-grid">
+                @foreach (var order in orders)
+                {
+                    var statusClass = order.Status.ToString() switch
+                    {
+                        "PendingPayment" => "status-pending",
+                        "AwaitingVerification" => "status-awaiting",
+                        "Verified" => "status-verified",
+                        "Rejected" => "status-rejected",
+                        "Shipped" => "status-shipped",
+                        "Delivered" => "status-delivered",
+                        "Cancelled" => "status-cancelled",
+                        "Refunded" => "status-refunded",
+                        _ => "status-unknown"
+                    };
+
+                    var statusLabel = order.Status.ToString() switch
+                    {
+                        "PendingPayment" => "Pending Payment",
+                        "AwaitingVerification" => "Awaiting Verification",
+                        _ => order.Status.ToString()
+                    };
+
+                    var items = order.orderItems ?? new List<OrderItem>();
+                    var previewItems = items.Take(3).ToList();
+                    var extraCount = items.Count - 3;
+
+                    <a asp-controller="Order" asp-action="OrderDetails" asp-route-orderid="@order.Id" class="ocard-link" >
+                        <div class="ocard">
+                            <!-- Card Top: Status & Date -->
+                            <div class="ocard-top">
+                                <span class="order-status @statusClass">
+                                    <span class="status-dot"></span>
+                                    @statusLabel
+                                </span>
+                                <span class="ocard-date">@order.OrderDate.ToString("dd MMM yyyy")</span>
+                            </div>
+
+                            <!-- Product Thumbnails -->
+                            <div class="ocard-thumbs">
+                                @foreach (var item in previewItems)
+                                {
+                                    <div class="ocard-thumb">
+                                        @if (item.product?.ImageUrl != null)
+                                        {
+                                            <img src="@item.product.ImageUrl" alt="@item.product?.Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="ocard-thumb-placeholder">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" /></svg>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                @if (extraCount > 0)
+                                {
+                                    <div class="ocard-thumb ocard-thumb-more">
+                                        <span>+@extraCount</span>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Card Info -->
+                            <div class="ocard-info">
+                                <div class="ocard-info-row">
+                                    <span class="ocard-order-id">Order #@order.Id</span>
+                                    <span class="ocard-total">$@order.TotalAmount.ToString("F2")</span>
+                                </div>
+                                <div class="ocard-meta">
+                                    <span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg>
+                                        @items.Count item@(items.Count != 1 ? "s" : "")
+                                    </span>
+                                    <span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                        @order.ShippingAddress
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Hover Arrow -->
+                            <div class="ocard-arrow">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+                                </svg>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>

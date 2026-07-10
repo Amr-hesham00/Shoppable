@@ -1,0 +1,154 @@
+@using Shoppable.Enum
+
+<div class="container">
+    <div class="row">
+        <!-- Categories Column -->
+        <div class="col-sm-6 col-lg-3 p-b-50">
+            <h4 class="stext-301 cl0 p-b-30">
+                Categories
+            </h4>
+
+            <ul>
+                <li class="p-b-10">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@((int)Category.Women)" class="stext-107 cl7 hov-cl1 trans-04">
+                        Women
+                    </a>
+                </li>
+
+                <li class="p-b-10">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@((int)Category.Men)" class="stext-107 cl7 hov-cl1 trans-04">
+                        Men
+                    </a>
+                </li>
+
+                <li class="p-b-10">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@((int)Category.Shoes)" class="stext-107 cl7 hov-cl1 trans-04">
+                        Shoes
+                    </a>
+                </li>
+
+                <li class="p-b-10">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@((int)Category.Watches)" class="stext-107 cl7 hov-cl1 trans-04">
+                        Watches
+                    </a>
+                </li>
+
+                <li class="p-b-10">
+                    <a asp-controller="Product" asp-action="ShopProducts" asp-route-category="@((int)Category.Bag)" class="stext-107 cl7 hov-cl1 trans-04">
+                        Bags
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Help Column -->
+        <div class="col-sm-6 col-lg-3 p-b-50">
+            <h4 class="stext-301 cl0 p-b-30">
+                Help
+            </h4>
+
+            <ul>
+                <li class="p-b-10">
+                    <a asp-controller="Order" asp-action="Orders" class="stext-107 cl7 hov-cl1 trans-04">
+                        Track Order
+                    </a>
+                </li>
+
+
+            </ul>
+        </div>
+
+        <!-- Contact Column -->
+        <div class="col-sm-6 col-lg-3 p-b-50">
+            <h4 class="stext-301 cl0 p-b-30">
+                GET IN TOUCH
+            </h4>
+
+            <p class="stext-107 cl7 size-201">
+                Don't hesitate to contact
+            </p>
+
+            <div class="p-t-27">
+
+                <a title="Amr hesahm" href="https://www.instagram.com/amr_hesham00/" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                    <i class="fa fa-instagram"></i>
+                </a>
+
+                <a title="Amr hesahm" href="https://www.linkedin.com/in/amr-hesham-559262289/" class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+                    <i class="fa fa-linkedin"></i>
+                </a>
+
+                <a title="Amr hesahm"
+                   href="https://www.upwork.com/freelancers/~01d23eb8036f49cd97"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="fs-18 cl7 hov-cl1 trans-04 m-r-16">
+
+                    <img src="~/images/icons/Upwork-Icons.svg"
+                         alt="Upwork"
+                         style="width:18px;height:18px;">
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Contact Info Column -->
+        <div class="col-sm-6 col-lg-3 p-b-50">
+            <h4 class="stext-301 cl0 p-b-30">
+                Contact me
+            </h4>
+
+            <ul>
+                <li class="p-b-10 stext-107 cl7 flex-w">
+                    <span class="m-r-10">📍</span>
+                    <span>Beni-suef, Egypt</span>
+                </li>
+
+                <li class="p-b-10 stext-107 cl7 flex-w">
+                    <span class="m-r-10">📞</span>
+                    <span><a href="tel:+201068404669" class="cl7 hov-cl1 trans-04">+20 100 123 4567</a></span>
+                </li>
+
+                <li class="p-b-10 stext-107 cl7 flex-w">
+                    <span class="m-r-10">@@</span>
+                    <span>
+                        <a href="mailto:Amrheshamf321@gmail.com" class="cl7 hov-cl1 trans-04">Amrheshamf321@gmail.com</a>
+                    </span>
+                </li>
+
+                <li class="p-b-10 stext-107 cl7 flex-w">
+                    <span class="m-r-10">🕒</span>
+                    <span>24/7</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Payments & Copyright -->
+    <div class="p-t-40">
+        <div class="flex-c-m flex-w p-b-18">
+            <span class="m-all-1">
+                <img src="/images/icons/visapng.png" style="height: 24px; width: 38; object-fit: contain;" alt="VISA">
+            </span>
+            &emsp;
+            <span class="m-all-1">
+                <img src="/images/icons/mastercardpng.png" style="height: 24px; width: auto; object-fit: contain;" alt="MASTERCARD">
+            </span>
+            &emsp;
+
+            <span class="m-all-1">
+                <img src="/images/icons/fawrypng.png" style="height: 24px; width: auto; object-fit: contain;" alt="FAWRY">
+            </span>
+
+            &emsp;
+            <span class="m-all-1">
+                <img src="/images/icons/meezapng.png" style="height: 24px; width: auto; object-fit: contain;" alt="MEEZA">
+            </span>
+            &emsp;
+        </div>
+
+        <p class="stext-107 cl6 txt-center">
+            Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved
+        </p>
+    </div>
+</div>

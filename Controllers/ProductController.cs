@@ -23,7 +23,6 @@ public class ProductController : Controller
     }
     public async Task<IActionResult> ShopProducts(ShopVM VM)
     {
-
         VM = await IproductService.Shop(VM);
         return View("ShopProducts", VM);
     }

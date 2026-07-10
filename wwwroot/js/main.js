@@ -189,9 +189,6 @@
         }    
     });
 
-
-
-
     /*==================================================================
     [ Cart ]*/
     $('.js-show-cart').on('click',function(){
@@ -265,7 +262,6 @@
             }
         });
     });
-    
     /*==================================================================
     [ Show modal1 ]*/
     $('.js-show-modal1').on('click',function(e){
@@ -276,7 +272,6 @@
     $('.js-hide-modal1').on('click',function(){
         $('.js-modal1').removeClass('show-modal1');
     });
-
 
 
 })(jQuery);

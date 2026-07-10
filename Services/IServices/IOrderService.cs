@@ -6,5 +6,8 @@ public interface IOrderService
     public Task<bool> PlaceOrder(PaymentVM VM, string userid);
     public Task SaveDeleteAsync(int id);
     public Task<OrderVM> GetOrderVM(int id);
+    public Task<AllOrdersVM> GetAllOrders(string userid);
+
 
 }
+

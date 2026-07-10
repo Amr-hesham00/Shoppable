@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Shoppable.Data.UnitOfWork;
 using System.Security.Claims;
@@ -137,4 +137,85 @@ public class UserController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    [HttpGet]
+    public async Task<IActionResult> AccountSetting()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var user = await userManager.FindByIdAsync(userId);
+
+        if (user == null)
+            return NotFound();
+
+        return View("AccountSetting", user);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateProfile(ApplicationUser model)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return RedirectToAction("SignIn");
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound();
+
+        // Update profile fields
+        user.Name = model.Name;
+        user.PhoneNumber = model.PhoneNumber;
+
+        if (user.Email != model.Email)
+        {
+            var setEmailResult = await userManager.SetEmailAsync(user, model.Email);
+            if (!setEmailResult.Succeeded)
+            {
+                foreach (var error in setEmailResult.Errors)
+                {
+                    ModelState.AddModelError("Email", error.Description);
+                }
+            }
+        }
+
+        var updateResult = await userManager.UpdateAsync(user);
+        if (updateResult.Succeeded)
+        {
+            TempData["SuccessMessage"] = "Profile updated successfully.";
+            return RedirectToAction("AccountSetting");
+        }
+
+        foreach (var error in updateResult.Errors)
+        {
+            ModelState.AddModelError("", error.Description);
+        }
+
+        return View("AccountSetting", user);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> UpdateAccount(ApplicationUser model)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return RedirectToAction("SignIn");
+
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null) return NotFound();
+
+        if (user.UserName != model.UserName)
+        {
+            var setUserNameResult = await userManager.SetUserNameAsync(user, model.UserName);
+            if (setUserNameResult.Succeeded)
+            {
+                // Must update sign-in cookie if username changes
+                await signInManager.RefreshSignInAsync(user);
+                TempData["SuccessMessage"] = "Account updated successfully.";
+                return RedirectToAction("AccountSetting");
+            }
+
+            foreach (var error in setUserNameResult.Errors)
+            {
+                ModelState.AddModelError("UserName", error.Description);
+            }
+        }
+        
+        return View("AccountSetting", user);
+    }
 }

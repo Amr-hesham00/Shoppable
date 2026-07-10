@@ -11,7 +11,6 @@ public class CustomerRepo : GenericRepo<Customer>, ICustomerRepo
     }
 
 
-
     public async Task<Customer> GetById_With_Orders(int id)
     {
         return await dbset.Include(x => x.orders).FirstOrDefaultAsync(x => x.Id == id);

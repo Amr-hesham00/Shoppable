@@ -1,279 +1,444 @@
-﻿<!DOCTYPE html>
+@inject Shoppable.Services.IServices.ICartService CartService
+@using System.Security.Claims
+@using Shoppable.Enum
+
+@{
+    int cartCount = 0;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId != null)
+        {
+            var cart = await CartService.GetOrCreateCartAsync(userId);
+            if (cart != null && cart.cartitems != null)
+            {
+                cartCount = cart.cartitems.Sum(item => item.Quantity);
+            }
+        }
+    }
+}
+<!DOCTYPE html>
 
 <html>
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!--===============================================================================================-->
-	<link rel="icon" type="image/png" href="/images/icons/favicon.png" />
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/bootstrap/css/bootstrap.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/fonts/iconic/css/material-design-iconic-font.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/fonts/linearicons-v1.0.0/icon-font.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/animate/animate.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/css-hamburgers/hamburgers.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/animsition/css/animsition.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/select2/select2.min.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/daterangepicker/daterangepicker.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/slick/slick.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/MagnificPopup/magnific-popup.css">
-	<!--=========================================/======================================================-->
-	<link rel="stylesheet" type="text/css" href="/vendor/perfect-scrollbar/perfect-scrollbar.css">
-	<!--===============================================================================================-->
-	<link rel="stylesheet" type="text/css" href="/css/util.css">
-	<link rel="stylesheet" type="text/css" href="/css/main.css">
-	<!--===============================================================================================-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="/images/icons/favicon.png" />
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/bootstrap/css/bootstrap.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/fonts/iconic/css/material-design-iconic-font.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/fonts/linearicons-v1.0.0/icon-font.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/animate/animate.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/css-hamburgers/hamburgers.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/animsition/css/animsition.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/select2/select2.min.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/daterangepicker/daterangepicker.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/slick/slick.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/MagnificPopup/magnific-popup.css">
+    <!--=========================================/======================================================-->
+    <link rel="stylesheet" type="text/css" href="/vendor/perfect-scrollbar/perfect-scrollbar.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="/css/util.css">
+    <link rel="stylesheet" type="text/css" href="/css/main.css">
+    <!--===============================================================================================-->
 </head>
 
-<body>
-	<!-- Header -->
-	<header>
-		<!-- Header desktop -->
-		<div class="container-menu-desktop">
-			<!-- Topbar -->
-			<div class="top-bar">
-				<div class="content-topbar flex-sb-m h-full container">
-					<div class="left-top-bar">
-						Free shipping for standard order over $100
-					</div>
+<body class="animsition">
+    <!-- Header -->
+    <header class="site-header">
+        <!-- Header desktop -->
+        <div class="container-menu-desktop">
+            <!-- Topbar -->
+            <div class="top-bar">
+                <div class="content-topbar flex-sb-m h-full container-fluid px-4 px-xl-5">
+                    <div class="left-top-bar">
+                        Free shipping for standard order over $100
+                    </div>
 
-					<div class="right-top-bar flex-w h-full">
-
-
-						<a class="flex-c-m trans-04 p-lr-25">
-							My Account
-						</a>
+                    <div class="right-top-bar flex-w h-full">
 
 
-						<a  class="flex-c-m trans-04 p-lr-25">
-							USD
-						</a>
-					</div>
-				</div>
-			</div>
-
-			<div class="wrap-menu-desktop">
-				<nav class="limiter-menu-desktop container">
-
-					<!-- Logo desktop -->
-					<a class="navbar-brand text-dark logo-gradient" asp-controller="Home" asp-action="Index">
-						Shoppable
-					</a>
-
-					<!-- Menu desktop -->
-					<div class="menu-desktop">
-						<ul class="main-menu">
-							<li>
-							<a asp-action="index" asp-controller="home">Home</a>
-							</li>
-
-							<li>
-								<a asp-controller="Product" asp-action="ShopProducts">Shop</a>
-							</li>
-
-							<li>
-								<a asp-controller="home" asp-action="contact">Contact</a>
-							</li>
-							
-							<li>
-								<a asp-controller="home"  asp-action="about" >About</a>
-							</li>
-
-							
-							
-
-						</ul>
-					</div>
-
-					<!-- Icon header -->
-					<div class="wrap-icon-header flex-w flex-r-m">
-						@if (User.Identity!.IsAuthenticated)
-						{
-							@if (User.IsInRole("Admin") || User.IsInRole("Merchant"))
-							{
-								<a class="btn btn-outline-dark ms-2" asp-controller="dashboard" asp-action="Index" >dashboard</a>
-							}
-							<a class="btn btn-outline-dark ms-2"
-							   asp-action="Signout"
-							   asp-controller="User">
-								Sign Out
-							</a>
-						}
-						else
-						{
-							<a class="btn btn-dark ms-2"
-							   asp-action="Signin"
-							   asp-controller="User">
-								Login/Register
-							</a>
-						}
-
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
-							<i class="zmdi zmdi-search"></i>
-						</div>
-
-						<div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="2">
-							<a class="text-dark" asp-controller="Cart" asp-action="index"><i class="zmdi zmdi-shopping-cart"></i></a>
-						</div>
-
-						
-					</div>
-				</nav>
-			</div>
-		</div>
-
-		<!-- Header Mobile -->
-		<div class="wrap-header-mobile">
-			<!-- Logo moblie -->
-			<a class="navbar-brand text-dark logo-gradient" asp-controller="Home" asp-action="Index">
-				Shoppable
-			</a>
-
-			<!-- Icon header -->
-			<div class="wrap-icon-header flex-w flex-r-m m-r-15">
-				
-				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
-					<i class="zmdi zmdi-search"></i>
-				</div>
-
-				<div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart" data-notify="2">
-					<a class="text-dark" asp-controller="Cart" asp-action="index"><i class="zmdi zmdi-shopping-cart"></i></a>
-
-				</div>
-
-				
-			</div>
-
-			<!-- Button show menu -->
-			<div class="btn-show-menu-mobile hamburger hamburger--squeeze">
-				<span class="hamburger-box">
-					<span class="hamburger-inner"></span>
-				</span>
-			</div>
-		</div>
+                        <a class="flex-c-m trans-04 p-lr-25">
+                            Worldwide
+                        </a>
 
 
-		<!-- Menu Mobile -->
-		<div class="menu-mobile">
-			<ul class="topbar-mobile">
-				<li>
-					<div class="left-top-bar">
-						Free shipping for standard order over $100
-					</div>
-				</li>
+                        <a class="flex-c-m trans-04 p-lr-25">
+                            USD
+                        </a>
+                    </div>
+                </div>
+            </div>
 
-				<li>
-					<div class="right-top-bar flex-w h-full">
+            <div class="wrap-menu-desktop site-nav-bar">
+                <nav class="limiter-menu-desktop container-fluid nav-bar-layout px-4 px-xl-5">
 
-						<a  class="flex-c-m p-lr-10 trans-04">
-							My Account
-						</a>
+                    <div class="nav-bar-left">
+                        <a class="navbar-brand text-dark logo-gradient" asp-controller="Home" asp-action="Index">
+                            Shoppable
+                        </a>
+                    </div>
+
+                    <div class="nav-bar-center menu-desktop">
+                        <ul class="main-menu">
+                            <li>
+                                <a asp-action="index" asp-controller="home">Home</a>
+                            </li>
+
+                            <li>
+                                <a asp-controller="product" asp-route-category="@Category.Men" asp-action="ShopProducts">Men</a>
+                            </li>
+
+                            <li>
+                                <a asp-controller="product" asp-route-category="@Category.Women" asp-action="ShopProducts">Women</a>
+                            </li>
+
+                            <li>
+                                <a asp-controller="product" asp-route-category="@Category.Shoes" asp-action="ShopProducts">Shoes</a>
+                            </li>
+
+                            <li>
+                                <a asp-controller="product" asp-action="ShopProducts">New Drops</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="nav-bar-right wrap-icon-header flex-w flex-r-m">
+                        @if (User.Identity!.IsAuthenticated)
+                        {
+                            @if (User.IsInRole("Admin") || User.IsInRole("Merchant"))
+                            {
+                                <a class="btn btn-outline-dark ms-2" asp-controller="dashboard" asp-action="Index">dashboard</a>
+                            }
+                            <a class="btn btn-outline-dark ms-2"
+                               asp-action="Signout"
+                               asp-controller="User"
+                               onclick="return confirm('Are you sure you want to sign out?');">
+                                Sign Out
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="btn btn-dark ms-2"
+                               asp-action="Signin"
+                               asp-controller="User">
+                                Login/Register
+                            </a>
+                        }
+                        <!--Search-->
+                        <div title="Search" class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 js-show-modal-search">
+                            <i class="zmdi zmdi-search"></i>
+                        </div>
+                        <!--Cart-->
+                        <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11 icon-header-noti js-show-cart" data-notify="@cartCount">
+                            <a title="Shopping Cart" class="text-dark" asp-controller="Cart" asp-action="index"><i class="zmdi zmdi-shopping-cart"></i></a>
+                        </div>
 
 
-						<a  class="flex-c-m p-lr-10 trans-04">
-							USD
-						</a>
-					</div>
+                        @if (User.Identity!.IsAuthenticated && User.IsInRole("Customer"))
+                        {
+                            <!--Orders-->
+                            <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11">
+                                <a title="Orders" class="text-dark" asp-controller="Order" asp-action="Orders">
+                                    <i class="zmdi zmdi-receipt"></i>
+                                </a>
+                            </div>
+                        }
 
-				</li>
-			</ul>
 
-			<ul class="main-menu-m">
-				<li>
-					@if (User.Identity.IsAuthenticated)
-					{
-						<a class="btn  ms-2"
-						   asp-action="Signout"
-						   asp-controller="User">
-							Sign Out
-						</a>
-						@if (User.IsInRole("Admin") || User.IsInRole("Merchant"))
-						{
-						<li>
-							<a asp-controller="dashboard" asp-action="Index">dashboard</a>
-						</li>
-					}
-					}
-					else
-					{
-						<a 
-						   asp-action="Signin"
-						   asp-controller="User">
-							Login/Register
-						</a>
-					}
-				</li>
-				<li>
-					<a asp-action="index" asp-controller="home">Home</a>
-				</li>
 
-				<li>
-					<a asp-controller="Product" asp-action="ShowallProducts">Shop</a>
-				</li>
+                        <!--Account-->
+                        <div class="icon-header-item cl2 hov-cl1 trans-04 p-l-22 p-r-11">
+                            @if (User.Identity!.IsAuthenticated)
+                            {
+                                @if (User.IsInRole("Merchant"))
+                                {
+                                    <a title="Account" class="text-dark" asp-controller="dashboard" asp-action="account">
+                                        <img src="/images/icons/account-icon.svg" alt="Account" class="account-icon-img" />
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a title="Account" class="text-dark" asp-controller="user" asp-action="AccountSetting">
+                                        <img src="/images/icons/account-icon.svg" alt="Account" class="account-icon-img" />
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <a class="text-dark" asp-action="Signin" asp-controller="User">
+                                    <img src="/images/icons/account-icon.svg" alt="Account" class="account-icon-img" />
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </nav>
+            </div>
+        </div>
 
-				<li>
-					<a asp-controller="home" asp-action="contact">Contact</a>
-				</li>
-				
+        <!-- Header Mobile -->
+        <div class="wrap-header-mobile">
+            <!-- Logo moblie -->
+            <a class="navbar-brand text-dark logo-gradient" asp-controller="Home" asp-action="Index">
+                Shoppable
+            </a>
 
-				<li>
-					<a asp-controller="home"  asp-action="about">About</a>
-				</li>
-				
-			</ul>
-		</div>
+            <!-- Icon header -->
+            <div class="wrap-icon-header flex-w flex-r-m m-r-15">
 
-		<!-- Modal Search -->
-		<div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
-			<div class="container-search-header">
-				<button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
-					<img src="/images/icons/icon-close2.png" alt="CLOSE">
-				</button>
+                <div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 js-show-modal-search">
+                    <i class="zmdi zmdi-search"></i>
+                </div>
 
-				<form class="wrap-search-header flex-w p-l-15">
-					<button class="flex-c-m trans-04">
-						<i class="zmdi zmdi-search"></i>
-					</button>
-					<input class="plh3" type="text" name="search" placeholder="Search...">
-				</form>
-			</div>
-		</div>
-		
-	</header>
-	
-    <div>
-		<br />
-		<br />
-		<br />
-		<br />
+                <div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10 icon-header-noti js-show-cart" data-notify="@cartCount">
+                    <a class="text-dark" asp-controller="Cart" asp-action="index"><i class="zmdi zmdi-shopping-cart"></i></a>
+                </div>
+
+                <div class="icon-header-item cl2 hov-cl1 trans-04 p-r-11 p-l-10">
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        @if (User.IsInRole("Admin") || User.IsInRole("Merchant"))
+                        {
+                            <a class="text-dark" asp-controller="dashboard" asp-action="account">
+                                <img src="/images/icons/account-icon.svg" alt="Account" class="account-icon-img" />
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="text-dark" asp-controller="Home" asp-action="Index">
+                                <img src="/images/icons/account-icon.svg" alt="Account" class="account-icon-img" />
+                            </a>
+                        }
+                    }
+                    else
+                    {
+                        <a class="text-dark" asp-action="Signin" asp-controller="User">
+                            <img src="/images/icons/account-icon.svg" alt="Account" class="account-icon-img" />
+                        </a>
+                    }
+                </div>
+
+
+            </div>
+
+            <!-- Button show menu -->
+            <div class="btn-show-menu-mobile hamburger hamburger--squeeze">
+                <span class="hamburger-box">
+                    <span class="hamburger-inner"></span>
+                </span>
+            </div>
+        </div>
+
+
+        <!-- Menu Mobile -->
+        <div class="menu-mobile">
+            <ul class="topbar-mobile">
+                <li>
+                    <div class="left-top-bar">
+                        Free shipping for standard order over $100
+                    </div>
+                </li>
+
+                <li>
+                    <div class="right-top-bar flex-w h-full">
+
+                        <a class="flex-c-m p-lr-10 trans-04">
+                            Worldwide
+                        </a>
+
+
+                        <a class="flex-c-m p-lr-10 trans-04">
+                            USD
+                        </a>
+                    </div>
+
+                </li>
+            </ul>
+
+            <ul class="main-menu-m">
+                <li>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a class="btn btn-outline-dark ms-2"
+                           asp-action="Signout"
+                           asp-controller="User"
+                           onclick="return confirm('Are you sure you want to sign out?');">
+                            Sign Out
+                        </a>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Merchant"))
+                        {
+                        <li>
+                            <a asp-controller="dashboard" asp-action="Index">dashboard</a>
+                        </li>
+                    }
+                }
+                else
+                {
+                    <a asp-action="Signin"
+                       asp-controller="User">
+                        Login/Register
+                    </a>
+                }
+                </li>
+                <li>
+                    <a asp-action="index" asp-controller="home">Home</a>
+                </li>
+
+                <li>
+                    <a asp-controller="Product" asp-action="ShowallProducts">Shop</a>
+                </li>
+
+                <li>
+                    <a asp-controller="home" asp-action="contact">Contact</a>
+                </li>
+
+
+                <li>
+                    <a asp-controller="home" asp-action="about">About</a>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Modal Search -->
+        <div class="modal-search-header flex-c-m trans-04 js-hide-modal-search">
+
+            <div class="container-search-header">
+                <button class="flex-c-m btn-hide-modal-search trans-04 js-hide-modal-search">
+                    <img src="/images/icons/icon-close2.png" alt="CLOSE">
+                </button>
+
+                <form asp-action="ShopProducts"
+                      asp-controller="Product"
+                      class="wrap-search-header flex-w p-l-15">
+                    <button class="flex-c-m trans-04">
+                        <i class="zmdi zmdi-search"></i>
+                    </button>
+                    <input class="plh3" type="text" name="Search" placeholder="Search...">
+                </form>
+            </div>
+        </div>
+
+    </header>
+
+    <div class="page-content-spacer">
         @RenderBody()
     </div>
-	@RenderSection("Scripts",false);
-	<style>
-		.logo-gradient {
-			font-weight: 700;
-			font-size: 28px;
-			background: linear-gradient(45deg, #0d6efd, #6610f2);
-			-webkit-background-clip: text;
-			-webkit-text-fill-color: transparent;
-		}
+    @RenderSection("Scripts", required: false)
+    <script src="/vendor/jquery/jquery-3.2.1.min.js"></script>
+    <script src="/vendor/animsition/js/animsition.min.js"></script>
+    <script src="/vendor/bootstrap/js/popper.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/js/main.js"></script>
+    <style>
+        .logo-gradient {
+            font-weight: 700;
+            font-size: 28px;
+            background: linear-gradient(45deg, #0d6efd, #6610f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-		nav {
-			background: linear-gradient(white);
-			/* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
-		}
-		
-	</style>
+        nav.limiter-menu-desktop.nav-bar-layout {
+            background: #fff;
+        }
+
+        .site-header .main-menu > li {
+            padding: 20px 12px 20px 0;
+            margin: 0 8px 0 18px;
+        }
+
+            .site-header .main-menu > li > a {
+                font-size: 16px;
+                padding: 6px 0;
+            }
+
+        .site-header .main-menu-m > li > a {
+            font-size: 16px;
+            line-height: 3;
+            padding: 10px 20px;
+        }
+
+        .site-nav-bar {
+            background-color: #fff;
+            width: 100%;
+            left: 0;
+            right: 0;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .site-header,
+        .container-menu-desktop {
+            width: 100%;
+        }
+
+        .wrap-header-mobile {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+            .wrap-header-mobile .wrap-icon-header {
+                margin-left: auto;
+            }
+
+        .page-content-spacer {
+            padding-top: 84px;
+        }
+
+        @@media (max-width: 991px) {
+            .page-content-spacer {
+                padding-top: 0px;
+            }
+        }
+
+        .nav-bar-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .nav-bar-left {
+            justify-self: start;
+        }
+
+        .nav-bar-center {
+            justify-self: center;
+        }
+
+        .nav-bar-right {
+            justify-self: end;
+        }
+
+        .limiter-menu-desktop .wrap-icon-header {
+            flex-grow: 0;
+        }
+
+        .account-icon-img {
+            width: 26px;
+            height: 26px;
+            vertical-align: middle;
+            transition: filter 0.3s;
+        }
+
+            .account-icon-img:hover {
+                filter: invert(53%) sepia(16%) saturate(1637%) hue-rotate(196deg) brightness(96%) contrast(89%);
+            }
+
+    </style>
 </body>
 </html>

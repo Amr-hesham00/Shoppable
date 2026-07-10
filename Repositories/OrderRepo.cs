@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Shoppable.Repositories.Generic;
 using Shoppable.Repositories.IRepositories;
 
@@ -20,8 +20,18 @@ public class OrderRepo : GenericRepo<Order>, IOrderRepo
 
     public async Task<Order?> Order_byId_WithItems(int orderid)
     {
-        return await dbset.Include(x => x.orderItems).FirstOrDefaultAsync(x => x.Id == orderid);
+        return await dbset.Include(x => x.orderItems).ThenInclude(x => x.product).FirstOrDefaultAsync(x => x.Id == orderid);
     }
+    public async Task<List<Order>?> Orders_by_cust_Id_WithItems(int custId)
+    {
+        return await dbset
+            .Where(o => o.CustomerId == custId)
+            .Include(o => o.orderItems)
+                .ThenInclude(oi => oi.product)
+            .OrderByDescending(o => o.OrderDate)
+            .ToListAsync();
+    }
+
 
 
     //public async Task<List<Order>?> Ordersby_Merchant_Customer_Ids(int merchantId)

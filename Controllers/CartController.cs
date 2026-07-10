@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Shoppable.Services.IServices;
 using System.Security.Claims;
 
@@ -6,11 +6,13 @@ namespace Shoppable.Controllers;
 
 public class CartController : Controller
 {
-        ICartService ICartService;
+    ICartService ICartService;
+    IProductService IProductService;
 
-    public CartController(ICartService _carts)
+    public CartController(ICartService _carts, IProductService iProductService)
     {
         ICartService = _carts;
+        IProductService = iProductService;
     }
 
 
@@ -52,11 +54,14 @@ public class CartController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (userId == null)
+        bool IsCustomer = await ICartService.CheckCustomer(userId);
+
+        if (!IsCustomer)
         {
             TempData["not a customer"] = "You must be a customer";
             return RedirectToAction("SignUp", "User");
         }
+
         if (ModelState.IsValid)
         {
 
@@ -71,7 +76,9 @@ public class CartController : Controller
 
             ModelState.AddModelError("", res.Message);
         }
-        return RedirectToAction("productdetails", "product", new { id = VM.ProductId }); // will return to product-details view page
+
+        var product = await IProductService.ProductDetails(VM.ProductId);
+        return View("product-detail", product); // will return to product-details view page
     }
 
     [HttpGet]

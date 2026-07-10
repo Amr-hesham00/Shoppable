@@ -1,0 +1,494 @@
+@model ProductFilterPV_VM
+
+@{
+    var search   = Model?.Search   ?? "";
+    var minPrice = Model?.Minprice;
+    var maxPrice = Model?.Maxprice;
+    var color    = Model?.Color ?? "";
+    var size     = Model?.Size  ?? "";
+
+    var colors = new[] { "Black", "White", "Red", "Blue", "Green", "Yellow", "Pink", "Gray", "Brown", "Navy" };
+    var sizes  = new[] { "XS", "S", "M", "L", "XL", "XXL" };
+
+    var priceRanges = new (string label, int min, int max)[]
+    {
+        ("$0 – $50",    0,   50),
+        ("$50 – $100",  50,  100),
+        ("$100 – $200", 100, 200),
+        ("$200+",       200, 99999),
+    };
+}
+
+@* ═══ Toggle Buttons (sit to the right of categories via the parent flex-sb-m) ═══ *@
+<div class="flex-w flex-c-m m-tb-10">
+
+    <!-- Filter toggle -->
+    <div class="pfpv-toggle-btn flex-c-m stext-106 cl6 size-104 bor4 pointer hov-btn3 trans-04 m-r-8 m-tb-4"
+         onclick="pfpvToggle('filter')">
+        <i class="icon-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-filter-list"></i>
+        <i class="icon-close-filter cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+        Filter
+    </div>
+
+    <!-- Search toggle -->
+    <div class="pfpv-toggle-btn flex-c-m stext-106 cl6 size-105 bor4 pointer hov-btn3 trans-04 m-tb-4"
+         onclick="pfpvToggle('search')">
+        <i class="icon-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-search"></i>
+        <i class="icon-close-search cl2 m-r-6 fs-15 trans-04 zmdi zmdi-close dis-none"></i>
+        Search
+    </div>
+</div>
+
+@* ═══ Search Panel (collapsible — starts hidden) ═══ *@
+<div id="pfpv-panel-search" class="pfpv-panel w-full p-t-10 p-b-15">
+    <form method="get" asp-action="ShopProducts" asp-controller="Product" class="pfpv-search-bar">
+        @if (minPrice.HasValue)            { <input type="hidden" name="Minprice" value="@minPrice" /> }
+        @if (maxPrice.HasValue)            { <input type="hidden" name="Maxprice" value="@maxPrice" /> }
+        @if (!string.IsNullOrEmpty(color)) { <input type="hidden" name="Color"    value="@color" /> }
+        @if (!string.IsNullOrEmpty(size))  { <input type="hidden" name="Size"     value="@size" /> }
+
+        <button type="submit" class="pfpv-search-icon">
+            <i class="zmdi zmdi-search"></i>
+        </button>
+        <input class="pfpv-search-input"
+               type="text"
+               name="Search"
+               value="@search"
+               placeholder="Search products..." />
+    </form>
+</div>
+
+@* ═══ Filter Panel (collapsible — starts hidden) ═══ *@
+<div id="pfpv-panel-filter" class="pfpv-panel w-full p-t-10">
+    <form method="get" asp-action="ShopProducts" asp-controller="Product" class="pfpv-filter-grid">
+
+        @if (!string.IsNullOrEmpty(search)) { <input type="hidden" name="Search" value="@search" /> }
+
+        <!-- Price Range -->
+        <div class="pfpv-filter-section">
+            <h6 class="pfpv-section-title">
+                <i class="zmdi zmdi-money"></i> Price Range
+            </h6>
+            <div class="pfpv-price-inputs">
+                <div class="pfpv-price-field">
+                    <label class="pfpv-label">Min ($)</label>
+                    <input type="number" name="Minprice" min="0" step="1"
+                           value="@(minPrice?.ToString() ?? "")"
+                           class="pfpv-num-input" placeholder="0" />
+                </div>
+                <span class="pfpv-price-sep">–</span>
+                <div class="pfpv-price-field">
+                    <label class="pfpv-label">Max ($)</label>
+                    <input type="number" name="Maxprice" min="0" step="1"
+                           value="@(maxPrice?.ToString() ?? "")"
+                           class="pfpv-num-input" placeholder="Any" />
+                </div>
+            </div>
+            <div class="pfpv-presets">
+                @foreach (var (label, pMin, pMax) in priceRanges)
+                {
+                    bool isActive = (minPrice == pMin && maxPrice == pMax);
+                    <a href="@Url.Action("ShopProducts","Product", new { Search=search, color, size, Minprice=pMin, Maxprice=(pMax==99999 ? (int?)null : pMax) })"
+                       class="pfpv-preset @(isActive ? "pfpv-preset--active" : "")">@label</a>
+                }
+                @if (minPrice.HasValue || maxPrice.HasValue)
+                {
+                    <a href="@Url.Action("ShopProducts","Product", new { Search=search, color, size })"
+                       class="pfpv-preset pfpv-preset--clear"><i class="zmdi zmdi-close"></i> Clear</a>
+                }
+            </div>
+        </div>
+
+        <!-- Color -->
+        <div class="pfpv-filter-section">
+            <h6 class="pfpv-section-title">
+                <i class="zmdi zmdi-palette"></i> Color
+            </h6>
+            <input type="hidden" name="Color" id="pfpv-color-val" value="@color" />
+            <div class="pfpv-color-swatches">
+                @foreach (var c in colors)
+                {
+                    bool active2 = color.Equals(c, StringComparison.OrdinalIgnoreCase);
+                    <button type="button" title="@c"
+                            onclick="pfpvSetColor('@c')"
+                            class="pfpv-swatch @(active2 ? "pfpv-swatch--active" : "")"
+                            style="background:@c.ToLower();">
+                        @if (active2) { <i class="zmdi zmdi-check pfpv-swatch-check"></i> }
+                    </button>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(color))
+            {
+                <a href="@Url.Action("ShopProducts","Product", new { Search=search, Minprice=minPrice, Maxprice=maxPrice, size })"
+                   class="pfpv-clear-link"><i class="zmdi zmdi-close"></i> Clear color</a>
+            }
+        </div>
+
+        <!-- Size -->
+        <div class="pfpv-filter-section">
+            <h6 class="pfpv-section-title">
+                <i class="zmdi zmdi-format-size"></i> Size
+            </h6>
+            <input type="hidden" name="Size" id="pfpv-size-val" value="@size" />
+            <div class="pfpv-size-chips">
+                @foreach (var s in sizes)
+                {
+                    bool active3 = size.Equals(s, StringComparison.OrdinalIgnoreCase);
+                    <button type="button"
+                            onclick="pfpvSetSize('@s')"
+                            class="pfpv-chip @(active3 ? "pfpv-chip--active" : "")">@s</button>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(size))
+            {
+                <a href="@Url.Action("ShopProducts","Product", new { Search=search, Minprice=minPrice, Maxprice=maxPrice, color })"
+                   class="pfpv-clear-link"><i class="zmdi zmdi-close"></i> Clear size</a>
+            }
+        </div>
+
+        <!-- Apply / Reset -->
+        <div class="pfpv-filter-section pfpv-actions">
+            <button type="submit" class="pfpv-btn pfpv-btn--apply">
+                <i class="zmdi zmdi-filter-list m-r-6"></i> Apply Filters
+            </button>
+            <a href="@Url.Action("ShopProducts","Product")" class="pfpv-btn pfpv-btn--reset">
+                Reset All
+            </a>
+        </div>
+    </form>
+</div>
+
+@* ═══ Active filter chips ═══ *@
+@{
+    bool anyFilter = minPrice.HasValue || maxPrice.HasValue ||
+                     !string.IsNullOrEmpty(color) || !string.IsNullOrEmpty(size) ||
+                     !string.IsNullOrEmpty(search);
+}
+@if (anyFilter)
+{
+    <div class="pfpv-active-chips">
+        <span class="pfpv-chips-label">Active filters:</span>
+
+        @if (!string.IsNullOrEmpty(search))
+        {
+            <a href="@Url.Action("ShopProducts","Product", new { Minprice=minPrice, Maxprice=maxPrice, color, size })"
+               class="pfpv-active-tag">Search: "@search" <i class="zmdi zmdi-close"></i></a>
+        }
+        @if (minPrice.HasValue || maxPrice.HasValue)
+        {
+            <a href="@Url.Action("ShopProducts","Product", new { Search=search, color, size })"
+               class="pfpv-active-tag">Price: $@(minPrice ?? 0) – @(maxPrice.HasValue ? "$"+maxPrice : "any") <i class="zmdi zmdi-close"></i></a>
+        }
+        @if (!string.IsNullOrEmpty(color))
+        {
+            <a href="@Url.Action("ShopProducts","Product", new { Search=search, Minprice=minPrice, Maxprice=maxPrice, size })"
+               class="pfpv-active-tag">Color: @color <i class="zmdi zmdi-close"></i></a>
+        }
+        @if (!string.IsNullOrEmpty(size))
+        {
+            <a href="@Url.Action("ShopProducts","Product", new { Search=search, Minprice=minPrice, Maxprice=maxPrice, color })"
+               class="pfpv-active-tag">Size: @size <i class="zmdi zmdi-close"></i></a>
+        }
+        <a href="@Url.Action("ShopProducts","Product")" class="pfpv-chip-reset">Clear All</a>
+    </div>
+}
+
+
+@* ═════════════════════════════════════════════════════════════════ *@
+@*                           STYLES                                *@
+@* ═════════════════════════════════════════════════════════════════ *@
+<style>
+/* ── Panels: hidden by default, shown via JS ─────────────── */
+.pfpv-panel {
+    display: none;
+    overflow: hidden;
+}
+.pfpv-panel.pfpv-open {
+    display: block;
+}
+
+/* ── Search Bar ──────────────────────────────────────────── */
+.pfpv-search-bar {
+    display: flex;
+    align-items: center;
+    background: #f8f9fb;
+    border: 1.5px solid #e2e4ea;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s, box-shadow .2s;
+}
+.pfpv-search-bar:focus-within {
+    border-color: #717fe0;
+    box-shadow: 0 0 0 3px rgba(113,127,224,.12);
+}
+.pfpv-search-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 18px;
+    cursor: pointer;
+    transition: color .2s;
+}
+.pfpv-search-icon:hover { color: #717fe0; }
+.pfpv-search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    padding: 12px 16px 12px 0;
+    font-size: 14px;
+    color: #333;
+    font-family: inherit;
+}
+.pfpv-search-input::placeholder { color: #b3b3b3; }
+
+/* ── Filter Grid ─────────────────────────────────────────── */
+.pfpv-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 28px 32px;
+    background: linear-gradient(145deg, #f8f9fb, #f2f3f8);
+    border: 1px solid #e9ebf0;
+    border-radius: 16px;
+    padding: 28px 32px;
+}
+
+/* ── Filter Section ──────────────────────────────────────── */
+.pfpv-filter-section { display: flex; flex-direction: column; gap: 10px; }
+.pfpv-section-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; color: #333;
+    text-transform: uppercase; letter-spacing: .5px;
+    margin: 0; padding-bottom: 4px;
+    border-bottom: 2px solid rgba(113,127,224,.15);
+}
+.pfpv-section-title i { color: #717fe0; font-size: 16px; }
+
+/* ── Price Inputs ────────────────────────────────────────── */
+.pfpv-price-inputs { display: flex; align-items: flex-end; gap: 10px; }
+.pfpv-price-field  { display: flex; flex-direction: column; gap: 4px; }
+.pfpv-label {
+    font-size: 10px; color: #999; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+}
+.pfpv-num-input {
+    width: 88px; padding: 7px 10px;
+    border: 1.5px solid #dfe1e6; border-radius: 8px;
+    font-size: 13px; color: #333; outline: none;
+    background: #fff;
+    transition: border-color .2s, box-shadow .2s;
+}
+.pfpv-num-input:focus {
+    border-color: #717fe0;
+    box-shadow: 0 0 0 3px rgba(113,127,224,.1);
+}
+.pfpv-price-sep { color: #bbb; font-size: 16px; padding-bottom: 7px; }
+
+/* ── Price Presets ────────────────────────────────────────── */
+.pfpv-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.pfpv-preset {
+    font-size: 11px; padding: 4px 12px; border-radius: 50px;
+    background: #fff; color: #666; text-decoration: none;
+    border: 1.5px solid #e2e4ea; transition: all .18s;
+    white-space: nowrap; font-weight: 500;
+}
+.pfpv-preset:hover { background: #eef0ff; color: #717fe0; border-color: #c5caff; }
+.pfpv-preset--active {
+    background: linear-gradient(135deg,#717fe0,#6366f1) !important;
+    color: #fff !important; border-color: transparent !important;
+    box-shadow: 0 2px 8px rgba(113,127,224,.3);
+}
+.pfpv-preset--clear { background: #fff5f5; color: #e74c3c !important; border-color: #fdd; }
+.pfpv-preset--clear:hover { background: #e74c3c; color: #fff !important; border-color: #e74c3c; }
+
+/* ── Color Swatches ──────────────────────────────────────── */
+.pfpv-color-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.pfpv-swatch {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 2.5px solid #e0e0e0; cursor: pointer;
+    position: relative; display: flex;
+    align-items: center; justify-content: center;
+    transition: transform .15s, box-shadow .2s, border-color .2s;
+}
+.pfpv-swatch:hover { transform: scale(1.18); box-shadow: 0 3px 10px rgba(0,0,0,.18); }
+.pfpv-swatch--active {
+    border-color: #717fe0 !important;
+    box-shadow: 0 0 0 3px rgba(113,127,224,.3); transform: scale(1.1);
+}
+.pfpv-swatch-check { color: #fff; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.5); }
+
+/* ── Size Chips ──────────────────────────────────────────── */
+.pfpv-size-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.pfpv-chip {
+    padding: 6px 15px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    border: 1.5px solid #dfe1e6; background: #fff;
+    color: #555; cursor: pointer; transition: all .18s;
+}
+.pfpv-chip:hover { border-color: #717fe0; color: #717fe0; background: #f5f6ff; }
+.pfpv-chip--active {
+    background: linear-gradient(135deg,#717fe0,#6366f1) !important;
+    color: #fff !important; border-color: transparent !important;
+    box-shadow: 0 2px 8px rgba(113,127,224,.3);
+}
+
+/* ── Clear Links ─────────────────────────────────────────── */
+.pfpv-clear-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; color: #e74c3c; text-decoration: none;
+    font-weight: 500; transition: opacity .2s;
+}
+.pfpv-clear-link:hover { opacity: .7; }
+
+/* ── Action Buttons ──────────────────────────────────────── */
+.pfpv-actions {
+    justify-content: flex-end; flex-direction: row;
+    align-items: flex-end; gap: 10px; flex-wrap: wrap;
+}
+.pfpv-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 24px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    text-decoration: none; transition: all .22s ease; border: none;
+}
+.pfpv-btn--apply {
+    background: linear-gradient(135deg,#717fe0,#6366f1);
+    color: #fff; box-shadow: 0 4px 14px rgba(113,127,224,.3);
+}
+.pfpv-btn--apply:hover {
+    opacity: .9; transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(113,127,224,.4);
+}
+.pfpv-btn--reset {
+    background: #fff; color: #666; border: 1.5px solid #e2e4ea;
+}
+.pfpv-btn--reset:hover { background: #f4f4f6; color: #333; }
+
+/* ── Active filter chips ─────────────────────────────────── */
+.pfpv-active-chips {
+    display: flex; align-items: center; flex-wrap: wrap;
+    gap: 8px; padding-top: 16px; padding-bottom: 8px;
+}
+.pfpv-chips-label {
+    font-size: 11px; color: #999; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+}
+.pfpv-active-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 14px; background: #eef0ff; color: #717fe0;
+    border: 1px solid #c5caff; border-radius: 50px;
+    font-size: 12px; font-weight: 500; text-decoration: none;
+    transition: background .18s;
+}
+.pfpv-active-tag:hover { background: #dce0ff; color: #5a67d8; }
+.pfpv-active-tag i { font-size: 11px; }
+.pfpv-chip-reset {
+    font-size: 12px; color: #e74c3c; text-decoration: none;
+    font-weight: 600; padding: 5px 14px;
+    border: 1.5px solid #e74c3c; border-radius: 50px;
+    transition: all .18s;
+}
+.pfpv-chip-reset:hover { background: #e74c3c; color: #fff; }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@@media (max-width: 768px) {
+    .pfpv-filter-grid { grid-template-columns: 1fr; padding: 20px; gap: 20px; }
+    .pfpv-actions { flex-direction: column; align-items: stretch; }
+}
+</style>
+
+
+@* ═════════════════════════════════════════════════════════════════ *@
+@*           VANILLA JS — zero jQuery dependency                   *@
+@* ═════════════════════════════════════════════════════════════════ *@
+<script>
+(function () {
+    /* ── State ── */
+    var openPanel = null;          // 'filter' | 'search' | null
+
+    /* ── Helpers ── */
+    function getPanel(name) {
+        return document.getElementById('pfpv-panel-' + name);
+    }
+
+    function slideDown(el) {
+        el.classList.add('pfpv-open');
+        el.style.height = '0px';
+        el.style.overflow = 'hidden';
+        el.style.transition = 'height 0.35s ease';
+        // read target height
+        var h = el.scrollHeight;
+        // force reflow then animate
+        el.offsetHeight;
+        el.style.height = h + 'px';
+        var done = function () {
+            el.removeEventListener('transitionend', done);
+            el.style.height = '';
+            el.style.overflow = '';
+            el.style.transition = '';
+        };
+        el.addEventListener('transitionend', done);
+    }
+
+    function slideUp(el, cb) {
+        el.style.height = el.scrollHeight + 'px';
+        el.style.overflow = 'hidden';
+        el.offsetHeight;               // reflow
+        el.style.transition = 'height 0.35s ease';
+        el.style.height = '0px';
+        var done = function () {
+            el.removeEventListener('transitionend', done);
+            el.classList.remove('pfpv-open');
+            el.style.height = '';
+            el.style.overflow = '';
+            el.style.transition = '';
+            if (cb) cb();
+        };
+        el.addEventListener('transitionend', done);
+    }
+
+    /* ── Toggle entry point (called from onclick) ── */
+    window.pfpvToggle = function (name) {
+        var panel   = getPanel(name);
+        var other   = getPanel(name === 'filter' ? 'search' : 'filter');
+
+        if (openPanel === name) {
+            // Close the currently open panel
+            slideUp(panel);
+            openPanel = null;
+        } else {
+            // Close the other panel first (if open), then open this one
+            if (openPanel && other.classList.contains('pfpv-open')) {
+                slideUp(other, function () { slideDown(panel); });
+            } else {
+                slideDown(panel);
+            }
+            openPanel = name;
+        }
+    };
+
+    /* ── Color / Size helpers ── */
+    window.pfpvSetColor = function (val) {
+        var el = document.getElementById('pfpv-color-val');
+        el.value = (el.value === val) ? '' : val;
+        document.querySelectorAll('.pfpv-swatch').forEach(function (btn) {
+            var match = btn.getAttribute('title') === val && el.value === val;
+            btn.classList.toggle('pfpv-swatch--active', match);
+        });
+    };
+
+    window.pfpvSetSize = function (val) {
+        var el = document.getElementById('pfpv-size-val');
+        el.value = (el.value === val) ? '' : val;
+        document.querySelectorAll('.pfpv-chip').forEach(function (btn) {
+            var match = btn.textContent.trim() === val && el.value === val;
+            btn.classList.toggle('pfpv-chip--active', match);
+        });
+    };
+})();
+</script>

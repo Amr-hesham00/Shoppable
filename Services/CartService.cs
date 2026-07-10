@@ -1,4 +1,4 @@
-﻿using Shoppable.Data.UnitOfWork;
+using Shoppable.Data.UnitOfWork;
 using Shoppable.Repositories.IRepositories;
 using Shoppable.Services.IServices;
 
@@ -32,7 +32,7 @@ public class CartService : ICartService
     {
         var cart = await _unitOfWork.Cart.GetByUserId(userId);
 
-
+        // if cart already exists 
         if (cart == null)
         {
             var customer = await _unitOfWork.Customer.GetByUserId(userId);
@@ -47,7 +47,7 @@ public class CartService : ICartService
                 CreatedDate = DateOnly.FromDateTime(DateTime.Now),
 
             };
-
+            // create a cart for the customer
             await _unitOfWork.Cart.CreateAsync(cart);
             await _unitOfWork.Cart.SaveAsync();
         }
@@ -145,4 +145,10 @@ public class CartService : ICartService
         _unitOfWork.CartItem.Update(item);
         await _unitOfWork.CartItem.SaveAsync();
     }
+    public async Task<bool> CheckCustomer(string userid)
+    {
+        return await _unitOfWork.Customer.GetByUserId(userid) != null;
+    }
+
+
 }

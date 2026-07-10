@@ -1,4 +1,4 @@
-﻿using Shoppable.Data.UnitOfWork;
+using Shoppable.Data.UnitOfWork;
 using Shoppable.Enum;
 using Shoppable.Repositories.Generic;
 using Shoppable.Repositories.IRepositories;
@@ -121,7 +121,26 @@ public class ProductService : GenericRepo<Product>, IProductService
             query = query.Where(p => p.category == VM.category);
         }
 
+        if (!string.IsNullOrWhiteSpace(VM.Color))
+        {
+            query = query.Where(p => p.Colors.Any(c =>
+                c.Equals(VM.Color, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (!string.IsNullOrWhiteSpace(VM.Size))
+        {
+            query = query.Where(p => p.Sizes.Any(s =>
+                s.Equals(VM.Size, StringComparison.OrdinalIgnoreCase)));
+        }
+
+
+
         VM.Products = query.ToList();
+
+        VM.NewArrivals = VM.Products
+            .OrderByDescending(p => p.CreatedDate)
+            .Take(6)
+            .ToList();
 
         return VM;
 

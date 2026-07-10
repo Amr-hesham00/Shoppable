@@ -1,0 +1,809 @@
+@model Order
+@using Shoppable.Enum
+
+@{
+    ViewData["Title"] = "Order #" + Model.Id + " Details";
+    Layout = "~/Views/Shared/_NavLayout.cshtml";
+
+    var statusClass = Model.Status.ToString() switch
+    {
+        "PendingPayment"       => "od-status-pending",
+        "AwaitingVerification" => "od-status-awaiting",
+        "Verified"             => "od-status-verified",
+        "Rejected"             => "od-status-rejected",
+        "Shipped"              => "od-status-shipped",
+        "Delivered"            => "od-status-delivered",
+        "Cancelled"            => "od-status-cancelled",
+        "Refunded"             => "od-status-refunded",
+        _                      => "od-status-unknown"
+    };
+
+    var statusLabel = Model.Status.ToString() switch
+    {
+        "PendingPayment"       => "Pending Payment",
+        "AwaitingVerification" => "Awaiting Verification",
+        _                      => Model.Status.ToString()
+    };
+
+    var items = Model.orderItems ?? new List<OrderItem>();
+    decimal subtotal = items.Sum(i => i.Quantity * i.PriceAtPurchase);
+}
+
+<div class="od-page">
+    <div class="od-container">
+
+        <!-- ── Breadcrumb ── -->
+        <nav class="od-breadcrumb" aria-label="breadcrumb">
+            <a asp-controller="Order" asp-action="Orders">My Orders</a>
+            <span class="od-bc-sep">›</span>
+            <span>Order #@Model.Id</span>
+        </nav>
+
+        <!-- ── Page Header ── -->
+        <div class="od-header">
+            <div class="od-header-left">
+                <h1 class="od-title">Order <span>#@Model.Id</span></h1>
+                <p class="od-date">Placed on @Model.OrderDate.ToString("dd MMMM yyyy")</p>
+            </div>
+            <span class="od-status-badge @statusClass">
+                <span class="od-status-dot"></span>
+                @statusLabel
+            </span>
+        </div>
+
+        <!-- ── Main Grid ── -->
+        <div class="od-grid">
+
+            <!-- LEFT: Items Table -->
+            <div class="od-card od-items-card">
+                <div class="od-card-header">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
+                    </svg>
+                    <span>Order Items <em>(@items.Count item@(items.Count != 1 ? "s" : ""))</em></span>
+                </div>
+
+                @if (items.Any())
+                {
+                    <div class="od-items-list">
+                        @foreach (var item in items)
+                        {
+                            decimal lineTotal = item.Quantity * item.PriceAtPurchase;
+                            <div class="od-item-row">
+                                <!-- Thumbnail -->
+                                <div class="od-thumb">
+                                    @if (!string.IsNullOrEmpty(item.product?.ImageUrl))
+                                    {
+                                        <img src="@item.product.ImageUrl" alt="@item.product.Name" loading="lazy" />
+                                    }
+                                    else
+                                    {
+                                        <div class="od-thumb-placeholder">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+                                            </svg>
+                                        </div>
+                                    }
+                                </div>
+
+                                <!-- Info -->
+                                <div class="od-item-info">
+                                    <p class="od-item-name">@(item.product?.Name ?? "Product")</p>
+                                    <div class="od-item-meta">
+                                        @if (!string.IsNullOrEmpty(item.Color))
+                                        {
+                                            <span class="od-tag">
+                                                <span class="od-color-dot" style="background:@item.Color.ToLower()"></span>
+                                                @item.Color
+                                            </span>
+                                        }
+                                        @if (!string.IsNullOrEmpty(item.Size))
+                                        {
+                                            <span class="od-tag">Size: @item.Size</span>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Qty -->
+                                <div class="od-item-qty">
+                                    <span class="od-qty-label">Qty</span>
+                                    <span class="od-qty-val">×@item.Quantity</span>
+                                </div>
+
+                                <!-- Unit Price -->
+                                <div class="od-item-price">
+                                    <span class="od-price-label">Unit</span>
+                                    <span>$@item.PriceAtPurchase.ToString("F2")</span>
+                                </div>
+
+                                <!-- Line Total -->
+                                <div class="od-item-total">
+                                    <span class="od-price-label">Total</span>
+                                    <span class="od-line-total">$@lineTotal.ToString("F2")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Order Totals -->
+                    <div class="od-totals">
+                        <div class="od-totals-row">
+                            <span>Subtotal</span>
+                            <span>$@subtotal.ToString("F2")</span>
+                        </div>
+                        <div class="od-totals-row">
+                            <span>Shipping</span>
+                            <span class="od-free-ship">Free</span>
+                        </div>
+                        <div class="od-totals-row od-totals-grand">
+                            <span>Order Total</span>
+                            <span>$@Model.TotalAmount.ToString("F2")</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="od-empty-items">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ddd" stroke-width="1.2">
+                            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" />
+                        </svg>
+                        <p>No items found in this order.</p>
+                    </div>
+                }
+            </div>
+
+            <!-- RIGHT: Sidebar -->
+            <div class="od-sidebar">
+
+                <!-- Shipping Info -->
+                <div class="od-card">
+                    <div class="od-card-header">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span>Shipping Info</span>
+                    </div>
+                    <div class="od-info-body">
+                        <div class="od-info-row">
+                            <span class="od-info-label">Name</span>
+                            <span class="od-info-val">@Model.FullName</span>
+                        </div>
+                        <div class="od-info-row">
+                            <span class="od-info-label">Address</span>
+                            <span class="od-info-val">@Model.ShippingAddress</span>
+                        </div>
+                        <div class="od-info-row">
+                            <span class="od-info-label">Phone</span>
+                            <span class="od-info-val">@Model.PhoneNumber</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Info -->
+                @if (Model.payment != null)
+                {
+                    var payStatusClass = Model.payment.PaymentStatus switch
+                    {
+                        PaymentStatus.Confirmed  => "od-pay-confirmed",
+                        PaymentStatus.Cancelled  => "od-pay-cancelled",
+                        _                        => "od-pay-pending"
+                    };
+                    <div class="od-card">
+                        <div class="od-card-header">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2" /><line x1="1" y1="10" x2="23" y2="10" />
+                            </svg>
+                            <span>Payment</span>
+                        </div>
+                        <div class="od-info-body">
+                            <div class="od-info-row">
+                                <span class="od-info-label">Method</span>
+                                <span class="od-info-val">
+                                    @(Model.payment.PaymentMethod switch
+                                    {
+                                        PaymentMethod.VodafoneCash => "Vodafone Cash",
+                                        PaymentMethod.Instapay    => "InstaPay",
+                                        PaymentMethod.COD         => "Cash on Delivery",
+                                        _                         => Model.payment.PaymentMethod.ToString()
+                                    })
+                                </span>
+                            </div>
+                            <div class="od-info-row">
+                                <span class="od-info-label">Status</span>
+                                <span class="od-pay-status @payStatusClass">@Model.payment.PaymentStatus</span>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Order Status Timeline -->
+                <div class="od-card">
+                    <div class="od-card-header">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>Order Progress</span>
+                    </div>
+                    <div class="od-timeline">
+                        @{
+                            var steps = new[] {
+                                ("PendingPayment",       "Pending Payment",       "zmdi-money"),
+                                ("AwaitingVerification", "Awaiting Verification", "zmdi-check-square"),
+                                ("Verified",             "Verified",              "zmdi-shield-check"),
+                                ("Shipped",              "Shipped",               "zmdi-truck"),
+                                ("Delivered",            "Delivered",             "zmdi-check-circle"),
+                            };
+
+                            var statusOrder = new[] {
+                                "PendingPayment", "AwaitingVerification", "Verified", "Shipped", "Delivered"
+                            };
+
+                            bool isRejected  = Model.Status == OrderStatus.Rejected;
+                            bool isCancelled = Model.Status == OrderStatus.Cancelled;
+                            bool isRefunded  = Model.Status == OrderStatus.Refunded;
+                            bool isTerminal  = isRejected || isCancelled || isRefunded;
+
+                            int currentIdx = Array.IndexOf(statusOrder, Model.Status.ToString());
+                        }
+
+                        @foreach (var (key, label, icon) in steps)
+                        {
+                            int stepIdx = Array.IndexOf(statusOrder, key);
+                            string stepCls = "od-step";
+                            if (!isTerminal && stepIdx <= currentIdx)
+                                stepCls += " od-step-done";
+                            else if (!isTerminal && stepIdx == currentIdx + 1)
+                                stepCls += " od-step-current";
+
+                            <div class="@stepCls">
+                                <div class="od-step-dot">
+                                    <i class="zmdi @icon"></i>
+                                </div>
+                                <span>@label</span>
+                            </div>
+                        }
+
+                        @if (isTerminal)
+                        {
+                            <div class="od-step od-step-terminal">
+                                <div class="od-step-dot">
+                                    <i class="zmdi zmdi-close-circle"></i>
+                                </div>
+                                <span>@statusLabel</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="od-actions">
+                    <a asp-controller="Order" asp-action="Orders" class="od-btn-back">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+                        </svg>
+                        Back to My Orders
+                    </a>
+                    <a asp-controller="Product" asp-action="ShopProducts" class="od-btn-shop">
+                        Continue Shopping
+                    </a>
+                </div>
+
+            </div><!-- /sidebar -->
+        </div><!-- /grid -->
+    </div><!-- /container -->
+</div><!-- /page -->
+
+<style>
+    /* ─── Root & Page ─────────────────────────────────────── */
+    .od-page {
+        background: #f7f7f9;
+        min-height: 100vh;
+        padding: 48px 0 80px;
+        font-family: 'Nunito', 'Montserrat', sans-serif;
+    }
+
+    .od-container {
+        max-width: 1140px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ─── Breadcrumb ───────────────────────────────────────── */
+    .od-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        color: #888;
+        margin-bottom: 28px;
+    }
+
+        .od-breadcrumb a {
+            color: #555;
+            text-decoration: none;
+            transition: color .2s;
+        }
+
+            .od-breadcrumb a:hover { color: #333; }
+
+    .od-bc-sep { color: #ccc; }
+
+    /* ─── Header ───────────────────────────────────────────── */
+    .od-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .od-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 4px;
+        letter-spacing: -0.5px;
+    }
+
+        .od-title span {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    .od-date {
+        font-size: 13px;
+        color: #888;
+        margin: 0;
+    }
+
+    /* ─── Status Badge ────────────────────────────────────── */
+    .od-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: .3px;
+        white-space: nowrap;
+    }
+
+    .od-status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: od-pulse 1.8s infinite;
+    }
+
+    @@keyframes od-pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: .4; }
+    }
+
+    .od-status-pending   { background: #fff8e1; color: #f59e0b; }
+    .od-status-awaiting  { background: #e8f4fd; color: #3b82f6; }
+    .od-status-verified  { background: #ecfdf5; color: #10b981; }
+    .od-status-rejected  { background: #fef2f2; color: #ef4444; }
+    .od-status-shipped   { background: #f0f4ff; color: #6366f1; }
+    .od-status-delivered { background: #f0fdf4; color: #16a34a; }
+    .od-status-cancelled { background: #f9fafb; color: #9ca3af; }
+    .od-status-refunded  { background: #fdf4ff; color: #a855f7; }
+    .od-status-unknown   { background: #f3f4f6; color: #6b7280; }
+
+    /* ─── Layout Grid ─────────────────────────────────────── */
+    .od-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    @@media (max-width: 900px) {
+        .od-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Cards ───────────────────────────────────────────── */
+    .od-card {
+        background: #fff;
+        border-radius: 16px;
+        border: 1px solid #eee;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,.045);
+        transition: box-shadow .25s;
+    }
+
+        .od-card:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,.08);
+        }
+
+    .od-card-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 22px;
+        border-bottom: 1px solid #f0f0f0;
+        font-weight: 700;
+        font-size: 14px;
+        color: #1a1a2e;
+        background: #fafafa;
+    }
+
+        .od-card-header em {
+            font-style: normal;
+            font-weight: 400;
+            color: #aaa;
+            margin-left: 2px;
+        }
+
+        .od-card-header svg { color: #667eea; flex-shrink: 0; }
+
+    /* ─── Items List ──────────────────────────────────────── */
+    .od-items-list { padding: 8px 0; }
+
+    .od-item-row {
+        display: grid;
+        grid-template-columns: 80px 1fr auto auto auto;
+        align-items: center;
+        gap: 18px;
+        padding: 16px 22px;
+        border-bottom: 1px solid #f7f7f7;
+        transition: background .15s;
+    }
+
+        .od-item-row:last-child { border-bottom: none; }
+        .od-item-row:hover { background: #fafbff; }
+
+    /* Thumbnail */
+    .od-thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+        border: 1px solid #f0f0f0;
+        background: #f9f9f9;
+    }
+
+        .od-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .3s;
+        }
+
+        .od-item-row:hover .od-thumb img { transform: scale(1.06); }
+
+    .od-thumb-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f5f5f5;
+    }
+
+    /* Item Info */
+    .od-item-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #1a1a2e;
+        margin: 0 0 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 220px;
+    }
+
+    .od-item-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .od-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #f4f4f6;
+        color: #666;
+        font-size: 11px;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 50px;
+    }
+
+    .od-color-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 1px solid rgba(0,0,0,.15);
+        display: inline-block;
+    }
+
+    /* Qty / Price / Total columns */
+    .od-item-qty,
+    .od-item-price,
+    .od-item-total {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        white-space: nowrap;
+        min-width: 60px;
+    }
+
+    .od-qty-label,
+    .od-price-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .6px;
+        color: #bbb;
+        margin-bottom: 2px;
+    }
+
+    .od-qty-val {
+        font-size: 15px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .od-line-total {
+        font-size: 15px;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    /* ─── Totals ──────────────────────────────────────────── */
+    .od-totals {
+        border-top: 2px dashed #f0f0f0;
+        padding: 20px 22px 24px;
+    }
+
+    .od-totals-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        color: #555;
+        padding: 6px 0;
+    }
+
+    .od-free-ship {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    .od-totals-grand {
+        border-top: 1px solid #eee;
+        margin-top: 8px;
+        padding-top: 14px;
+        font-size: 18px;
+        font-weight: 800;
+        color: #1a1a2e;
+    }
+
+        .od-totals-grand span:last-child {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+    /* ─── Empty Items ─────────────────────────────────────── */
+    .od-empty-items {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 48px 24px;
+        color: #ccc;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    /* ─── Sidebar ─────────────────────────────────────────── */
+    .od-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .od-info-body { padding: 16px 22px; }
+
+    .od-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 13px;
+    }
+
+        .od-info-row:last-child { border-bottom: none; }
+
+    .od-info-label {
+        color: #aaa;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 10px;
+        letter-spacing: .6px;
+        white-space: nowrap;
+        padding-top: 2px;
+    }
+
+    .od-info-val {
+        color: #333;
+        font-weight: 500;
+        text-align: right;
+        max-width: 180px;
+    }
+
+    /* ─── Payment Status ──────────────────────────────────── */
+    .od-pay-status {
+        font-size: 12px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 50px;
+    }
+
+    .od-pay-confirmed { background: #ecfdf5; color: #10b981; }
+    .od-pay-cancelled { background: #fef2f2; color: #ef4444; }
+    .od-pay-pending   { background: #fff8e1; color: #f59e0b; }
+
+    /* ─── Order Timeline ──────────────────────────────────── */
+    .od-timeline {
+        padding: 18px 22px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+    }
+
+    .od-step {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 10px 0;
+        font-size: 13px;
+        color: #ccc;
+        font-weight: 500;
+        position: relative;
+    }
+
+        .od-step::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 36px;
+            width: 2px;
+            height: calc(100% - 16px);
+            background: #eee;
+            z-index: 0;
+        }
+
+        .od-step:last-child::before { display: none; }
+
+    .od-step-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid #e5e7eb;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: #ccc;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+        transition: all .25s;
+    }
+
+    .od-step-done .od-step-dot {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(102,126,234,.35);
+    }
+
+    .od-step-done { color: #1a1a2e; }
+
+    .od-step-done::before { background: linear-gradient(180deg, #667eea, #764ba2); }
+
+    .od-step-current .od-step-dot {
+        border-color: #667eea;
+        color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102,126,234,.15);
+        animation: od-ring 1.8s infinite;
+    }
+
+    @@keyframes od-ring {
+        0%, 100% { box-shadow: 0 0 0 4px rgba(102,126,234,.15); }
+        50% { box-shadow: 0 0 0 8px rgba(102,126,234,.08); }
+    }
+
+    .od-step-current { color: #667eea; font-weight: 700; }
+
+    .od-step-terminal .od-step-dot {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #ef4444;
+    }
+
+    .od-step-terminal { color: #ef4444; font-weight: 700; }
+
+    /* ─── Actions ─────────────────────────────────────────── */
+    .od-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .od-btn-back,
+    .od-btn-shop {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 13px 20px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all .2s;
+        cursor: pointer;
+    }
+
+    .od-btn-back {
+        background: #fff;
+        border: 1.5px solid #e5e7eb;
+        color: #444;
+    }
+
+        .od-btn-back:hover {
+            background: #f4f4f6;
+            border-color: #ccc;
+            color: #222;
+            transform: translateY(-1px);
+        }
+
+    .od-btn-shop {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border: none;
+        color: #fff;
+        box-shadow: 0 4px 16px rgba(102,126,234,.35);
+    }
+
+        .od-btn-shop:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102,126,234,.45);
+        }
+
+    /* ─── Responsive ──────────────────────────────────────── */
+    @@media (max-width: 680px) {
+        .od-item-row {
+            grid-template-columns: 64px 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 10px;
+        }
+
+        .od-item-qty,
+        .od-item-price,
+        .od-item-total {
+            align-items: flex-start;
+        }
+
+        .od-item-qty { grid-column: 2; }
+        .od-item-price { grid-column: 1; }
+        .od-item-total { grid-column: 2; }
+
+        .od-thumb { width: 64px; height: 64px; }
+
+        .od-title { font-size: 22px; }
+    }
+</style>

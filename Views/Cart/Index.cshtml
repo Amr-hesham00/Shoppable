@@ -1,4 +1,4 @@
-﻿@model Cart // i'll use this model here
+@model Cart // i'll use this model here
 
 @{
     var cartItems = Model?.cartitems?.ToList() ?? new List<CartItem>();
@@ -55,7 +55,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @for(int i = 0; i < cartItems.Count;i++)
+                                        @for (int i = 0; i < cartItems.Count; i++)
                                         {
                                             <tr>
                                                 <!--prod NAme-->
@@ -78,34 +78,39 @@
 
                                                 <!--Number-->
                                                 <td>
-                                                    <div class="qty-action-wrap">
-                                                        <div class="wrap-num-product flex-w">
-                                                            <div class="btn-num-product-down cl8 hov-btn3 trans-04 flex-c-m" onclick="adjustQty(this, -1)">
-                                                                <i class="fs-16 zmdi zmdi-minus"></i>
-                                                            </div>
+                                                    <div class="cart-item-actions">
 
-                                                            <input class="mtext-104 cl3 txt-center num-product"
+                                                        <div class="quantity-box">
+                                                            <input type="hidden"
+                                                                   name="cartitems[@(i)].Id"
+                                                                   value="@cartItems[i].Id" />
+
+                                                            <button type="button" class="qty-btn" data-action="decrease">
+                                                                <i class="zmdi zmdi-minus"></i>
+                                                            </button>
+
+                                                            <input class="qty-input"
                                                                    type="number"
-                                                                   asp-for="@cartItems[i].Quantity"
+                                                                   name="cartitems[@(i)].Quantity"
+                                                                   value="@cartItems[i].Quantity"
                                                                    min="1"
-                                                                   max="50"
-                                                                     />
+                                                                   max="50" />
 
-                                                            <input type="hidden" asp-for="cartitems[i].Id" />
-
-                                                            <div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m" onclick="adjustQty(this, 1)">
-                                                                <i class="fs-16 zmdi zmdi-plus"></i>
-                                                            </div>
+                                                            <button type="button" class="qty-btn" data-action="increase">
+                                                                <i class="zmdi zmdi-plus"></i>
+                                                            </button>
                                                         </div>
 
-                                                        <!--remove btn-->
                                                         <a asp-action="Remove"
                                                            asp-controller="Cart"
                                                            asp-route-itemId="@cartItems[i].Id"
                                                            class="remove-item-btn"
-                                                           title="Remove item">
+                                                           title="Remove item"
+                                                           onclick="return confirm('Are you sure you want to remove this item from your cart?');">
+                                                            
                                                             <i class="fs-20 zmdi zmdi-delete"></i>
                                                         </a>
+
                                                     </div>
                                                 </td>
 
@@ -175,9 +180,27 @@
 </div>
 
 <script>
-    function adjustQty(btn, delta) {
-        const input = btn.closest('.wrap-num-product').querySelector('input');
-        const val = parseInt(input.value) || 1;
-        input.value = Math.max(1, Math.min(99, val + delta));
-    }
+        document.addEventListener("click", function (e) {
+
+        const btn = e.target.closest(".qty-btn");
+        if (!btn) return;
+
+        const container = btn.closest(".quantity-box");
+        const input = container.querySelector(".qty-input");
+
+        const min = parseInt(input.min) || 1;
+        const max = parseInt(input.max) || 99;
+
+        let value = parseInt(input.value) || min;
+
+        if (btn.dataset.action === "increase") {
+            value++;
+        } else {
+            value--;
+        }
+
+        value = Math.max(min, Math.min(max, value));
+
+        input.value = value;
+    });
 </script>
